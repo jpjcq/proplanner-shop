@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>L'onglerie de Charlotte</title>
+    <style>
+      * {
+        font-family: "Open Sans", sans-serif;
+        box-sizing: border-box;
+      }
+
+      @font-face {
+        font-family: "Raleway SemiBold";
+        font-weight: 600;
+        font-style: normal;
+        font-display: block;
+        font-named-instance: "SemiBold";
+        src: url(/./fonts/Raleway-SemiBold.woff2) format("woff2");
+      }
+
+      @font-face {
+        font-family: "Open Sans custom";
+        font-weight: 300 800;
+        font-style: normal;
+        font-display: block;
+        font-named-instance: "Regular";
+        src: url(/./fonts/OpenSans.woff2)
+            format("woff2 supports variations(gvar)"),
+          url(/./fonts/OpenSans.woff2) format("woff2-variations"),
+          url(/./fonts/OpenSans.woff2) format("woff2");
+      }
+
+      @supports(font-variation-settings: normal) {
+        * {
+          font-family: "Open Sans custom", sans-serif;
+        }
+      }
+
+      html, body {
+        margin: 0;
+        padding: 0;
+      }
+
+      button {
+        user-select: none;
+      }
+
+      /* * {
+        border: 1px solid red;
+      } */
+
+      html {
+        font-size: 16px;
+        font-variant: none;
+        font-smooth: always;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+      }
+
+      html, body, #root {
+        min-height: 100%;
+      }
+
+      ul {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
