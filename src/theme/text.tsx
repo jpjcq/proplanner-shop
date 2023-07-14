@@ -1,10 +1,10 @@
-import { Text, TextProps } from "rebass";
 import styled from "styled-components";
+import { Text, TextProps } from "rebass";
 
 const TextWrapper = styled(Text).withConfig({
-  shouldForwardProp: prop => prop !== "color",
+  shouldForwardProp: (prop) => prop !== "color",
 })<{ color: string }>`
-  color: ${({ color, theme }) => theme[color]};
+  color: ${({ color, theme }) => theme[color] as string};
 `;
 
 export function SmallCaption(props: TextProps) {

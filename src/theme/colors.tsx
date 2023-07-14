@@ -1,34 +1,54 @@
-import { opacify } from "./utils";
+export const blackA = {
+  blackA1: 'hsla(0, 0%, 0%, 0.012)',
+  blackA2: 'hsla(0, 0%, 0%, 0.027)',
+  blackA3: 'hsla(0, 0%, 0%, 0.047)',
+  blackA4: 'hsla(0, 0%, 0%, 0.071)',
+  blackA5: 'hsla(0, 0%, 0%, 0.090)',
+  blackA6: 'hsla(0, 0%, 0%, 0.114)',
+  blackA7: 'hsla(0, 0%, 0%, 0.141)',
+  blackA8: 'hsla(0, 0%, 0%, 0.220)',
+  blackA9: 'hsla(0, 0%, 0%, 0.439)',
+  blackA10: 'hsla(0, 0%, 0%, 0.478)',
+  blackA11: 'hsla(0, 0%, 0%, 0.565)',
+  blackA12: 'hsla(0, 0%, 0%, 0.910)',
+};
 
-export const colors = {
-  white: "#FFFFFF",
-  black: "#000000",
-  gray50: "#F5F6FC",
-  gray100: "#E8ECFB",
-  gray150: "#D2D9EE",
-  gray200: "#B8C0DC",
-  gray250: "#A6AFCA",
-  gray300: "#98A1C0",
-  gray350: "#888FAB",
-  gray400: "#7780A0",
-  gray450: "#6B7594",
-  gray500: "#5D6785",
-  gray550: "#505A78",
-  gray600: "#404A67",
-  gray650: "#333D59",
-  gray700: "#293249",
-  gray750: "#1B2236",
-  gray800: "#131A2A",
-  gray850: "#0E1524",
-  gray900: "#0D111C",
-  gray950: "#080B11",
-  darkGreen: "#182017",
-  lightGrey: "#DAE1ED",
+export const olive = {
+  olive1: 'hsl(110, 5.0%, 8.6%)',
+  olive2: 'hsl(105, 7.4%, 10.6%)',
+  olive3: 'hsl(106, 6.4%, 13.1%)',
+  olive4: 'hsl(106, 5.8%, 15.3%)',
+  olive5: 'hsl(107, 5.3%, 17.4%)',
+  olive6: 'hsl(107, 4.9%, 19.9%)',
+  olive7: 'hsl(108, 4.4%, 23.6%)',
+  olive8: 'hsl(110, 3.8%, 30.6%)',
+  olive9: 'hsl(110, 6.0%, 42.5%)',
+  olive10: 'hsl(111, 4.8%, 48.2%)',
+  olive11: 'hsl(110, 5.0%, 61.8%)',
+  olive12: 'hsl(110, 6.0%, 93.0%)',
+};
+
+export const gray = {
+  gray1: 'hsl(0, 0%, 8.5%)',
+  gray2: 'hsl(0, 0%, 11.0%)',
+  gray3: 'hsl(0, 0%, 13.6%)',
+  gray4: 'hsl(0, 0%, 15.8%)',
+  gray5: 'hsl(0, 0%, 17.9%)',
+  gray6: 'hsl(0, 0%, 20.5%)',
+  gray7: 'hsl(0, 0%, 24.3%)',
+  gray8: 'hsl(0, 0%, 31.2%)',
+  gray9: 'hsl(0, 0%, 43.9%)',
+  gray10: 'hsl(0, 0%, 49.4%)',
+  gray11: 'hsl(0, 0%, 62.8%)',
+  gray12: 'hsl(0, 0%, 93.0%)',
 };
 
 const commonTheme = {
-  white: colors.white,
-  black: colors.black,
+  white: "white",
+  black: "black",
+  blackA,
+  olive,
+  gray,
 
   validation: {
     orange: {
@@ -41,11 +61,10 @@ const commonTheme = {
 
 export const lightTheme = {
   ...commonTheme,
-  background: colors.white,
-  backgroundModal: opacify(72, colors.gray900),
+  background: "white",
 
-  textPrimary: colors.darkGreen,
-  textSecondary: colors.lightGrey,
+  textPrimary: olive.olive5,
+  textSecondary: olive.olive3,
   lightBorder: "#D6DAE1",
 
   shallowShadow:

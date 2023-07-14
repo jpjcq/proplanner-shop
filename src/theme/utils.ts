@@ -16,3 +16,13 @@ export function opacify(amount: number, hexColor: string): string {
 
   return `${hexColor.slice(0, 7)}${opacifySuffix}`
 }
+
+export const BREAKPOINTS = {
+  xs: 396,
+  sm: 640,
+  md: 768,
+  lg: 1024,
+  xl: 1280,
+  xxl: 1536,
+  xxxl: 1920,
+};

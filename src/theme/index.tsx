@@ -9,25 +9,17 @@ import { lightTheme, Theme } from "./colors";
 const darkMode = false;
 const darkTheme = lightTheme;
 
-export const BREAKPOINTS = {
-  xs: 396,
-  sm: 640,
-  md: 768,
-  lg: 1024,
-  xl: 1280,
-  xxl: 1536,
-  xxxl: 1920,
-};
-
-export function getTheme(darkMode: boolean) {
+function getTheme(darkMode: boolean) {
   return {
     darkMode,
     ...(darkMode ? darkTheme : lightTheme),
   };
 }
 
+export type ThemeType = ReturnType<typeof getTheme>;
+
 export default function ThemeProvider({ children }: { children: ReactNode }) {
-  const themeObject = useMemo(() => getTheme(darkMode), [darkMode]);
+  const themeObject = useMemo(() => getTheme(darkMode), []);
   return (
     <StyledComponentsThemeProvider theme={themeObject}>
       {children}
