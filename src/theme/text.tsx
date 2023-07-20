@@ -40,6 +40,17 @@ export function Caption(props: TextProps) {
   );
 }
 
+export function Description(props: TextProps) {
+  return (
+    <TextWrapper
+      fontWeight={400}
+      fontSize={12}
+      color={"textSecondary"}
+      {...props}
+    />
+  );
+}
+
 export function ValidationCaption(props: TextProps) {
   return (
     <TextWrapper

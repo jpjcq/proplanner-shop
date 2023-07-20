@@ -8,7 +8,7 @@ const FixedCenteringWrapper = styled.div`
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  margin-top: -15%;
+  /* margin-top: -15%; */
 `;
 
 export default FixedCenteringWrapper;

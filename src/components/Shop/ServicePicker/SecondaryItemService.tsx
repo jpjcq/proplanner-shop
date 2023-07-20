@@ -1,12 +1,10 @@
 import { useContext } from "react";
 import styled from "styled-components";
-import { motion } from "framer-motion";
 import CartContext from "../../../contexts/cart/cart-context";
 import {
   BodySmall,
   Caption,
   SmallSubHeader,
-  SubHeader,
 } from "../../../theme/text";
 import { SecondaryServices } from "../../../types/services";
 import toHours from "../../../utils/toHours";
@@ -24,7 +22,7 @@ const Item = styled.div`
   border-radius: 1px;
 `;
 
-const Title = styled(SubHeader)`
+const Title = styled(SmallSubHeader)`
   letter-spacing: 0.06em;
 `;
 
@@ -72,7 +70,7 @@ export default function SecondaryItem({
       <Item>
         <Title>{service.title}</Title>
         <Description>{service.description}</Description>
-        <Box width="100%" justify="space-between">
+        <Box style={{width: "100%", justifyContent: "space-between"}}>
           <PriceTime>
             <Price>{service.price}€</Price> &nbsp;-&nbsp;
             <Time>{toHours(service.duration)}</Time>

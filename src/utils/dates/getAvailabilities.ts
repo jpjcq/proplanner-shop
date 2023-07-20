@@ -14,7 +14,7 @@ export default function getAvailabilities(
   while (intervalStart < endOfDay) {
     const intervalEnd = intervalStart.plus({ minute: 30 });
     const interval = Interval.fromDateTimes(intervalStart, intervalEnd);
-    const isHalfDayBefore = interval.start >= now.plus({ hour: 12 });
+    const isHalfDayBefore = interval.start! >= now.plus({ hour: 12 });
     let isAvailable = true;
     for (const booking of bookings) {
       if (booking.serviceTime.overlaps(interval)) {
@@ -34,9 +34,9 @@ export default function getAvailabilities(
   const availableCrenels: Interval[] = [];
   availableMergedIntervals.forEach(interval => {
     let crenelStart = interval.start;
-    while (crenelStart.plus({ minute: duration }) < interval.end) {
-      const crenelEnd = crenelStart.plus({ minute: 30 });
-      const crenel = Interval.fromDateTimes(crenelStart, crenelEnd);
+    while (crenelStart!.plus({ minute: duration }) < interval.end!) {
+      const crenelEnd = crenelStart!.plus({ minute: 30 });
+      const crenel = Interval.fromDateTimes(crenelStart!, crenelEnd);
       availableCrenels.push(crenel);
       crenelStart = crenelEnd;
     }

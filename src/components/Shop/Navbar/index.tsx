@@ -6,10 +6,11 @@ import { User, ShoppingCart } from "react-feather";
 import TextLogo from "./TextLogo";
 import { QuantityIcon } from "../CartModal/QuantityIcon";
 import { CartModal } from "../CartModal";
+import Menu from "../../Menu";
 
 const Header = styled.header`
   position: fixed;
-  background-color: white;
+  backdrop-filter: blur(10px);
   width: 100%;
   z-index: 10;
 `;
@@ -50,6 +51,7 @@ export function ShopWelcomeNavbar() {
 
 export function ShopNavbar() {
   const [chooseServiceFirst, setChooseServiceFirst] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const cartCtx = useContext(CartContext);
   const navigate = useNavigate();
 
@@ -68,27 +70,30 @@ export function ShopNavbar() {
   };
 
   return (
-    <Header>
-      <Nav>
-        <Ul>
-          <li>
-            <User />
-          </li>
-          <TextLogo />
-          <Li>
-            <CartModal
-              switchToServicePicker={switchToServicePicker}
-              switchToDatePicker={switchToDatePicker}
-              chooseServiceFirst={chooseServiceFirst}
-            >
-              <div style={{ position: "relative", height: "30px" }}>
-                <ShoppingCart style={{ position: "absolute" }} />
-                {cartCtx.cartItems.length > 0 && <QuantityIcon />}
-              </div>
-            </CartModal>
-          </Li>
-        </Ul>
-      </Nav>
-    </Header>
+    <>
+      <Menu isMenuOpen={isMenuOpen} setIsMenuOpen={setIsMenuOpen} />
+      <Header>
+        <Nav>
+          <Ul>
+            <li>
+              <User onClick={() => setIsMenuOpen(true)} />
+            </li>
+            <TextLogo />
+            <Li>
+              <CartModal
+                switchToServicePicker={switchToServicePicker}
+                switchToDatePicker={switchToDatePicker}
+                chooseServiceFirst={chooseServiceFirst}
+              >
+                <div style={{ position: "relative", height: "30px" }}>
+                  <ShoppingCart style={{ position: "absolute" }} />
+                  {cartCtx.cartItems.length > 0 && <QuantityIcon />}
+                </div>
+              </CartModal>
+            </Li>
+          </Ul>
+        </Nav>
+      </Header>
+    </>
   );
 }

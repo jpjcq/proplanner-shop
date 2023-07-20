@@ -6,7 +6,7 @@ import styled from "styled-components";
 export const ShopButtonPrimary = styled(RebassButton)`
   display: flex;
   place-items: center;
-  background-color: ${({ theme }) => theme.textPrimary};
+  background-color: #6e7d59;
   border: none;
   border-radius: 2px;
   color: ${({ theme }) => theme.white};
@@ -55,14 +55,14 @@ export const MotionShopButtonSecondary = motion(ShopButtonSecondary);
 export const MotionQuantityCartButton = motion(QuantityCartButton);
 
 interface AnimatedButtonProps {
-  children: ReactNode,
-  onClick?: () => void,
-  style?: CSSProperties
+  children: ReactNode;
+  onClick?: () => void;
+  style?: CSSProperties;
 }
 
 export function AnimatedShopButtonPrimary({
   children,
-  onClick
+  onClick,
 }: AnimatedButtonProps) {
   return (
     <MotionShopButtonPrimary
@@ -76,7 +76,7 @@ export function AnimatedShopButtonPrimary({
 
 export function AnimatedShopButtonSecondary({
   children,
-  onClick
+  onClick,
 }: AnimatedButtonProps) {
   return (
     <MotionShopButtonSecondary
@@ -91,7 +91,7 @@ export function AnimatedShopButtonSecondary({
 export function AnimatedQuantityCartButton({
   children,
   onClick,
-  style
+  style,
 }: AnimatedButtonProps) {
   return (
     <MotionQuantityCartButton

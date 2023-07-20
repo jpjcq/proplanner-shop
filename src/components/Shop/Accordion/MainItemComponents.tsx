@@ -2,7 +2,7 @@ import { Item, Header, Trigger, Content } from "@radix-ui/react-accordion";
 import styled from "styled-components";
 import { motion } from "framer-motion";
 import { ChevronDown } from "react-feather";
-import { Caption, MediumHeader } from "../../../theme/text";
+import { Caption, Description, SubHeader } from "../../../theme/text";
 
 export const StyledAccordionItem = styled(Item)`
   display: flex;
@@ -12,6 +12,7 @@ export const StyledAccordionItem = styled(Item)`
   font-size: 1rem;
   font-weight: 600;
   letter-spacing: 0.06em;
+  background-color: white;
   box-shadow: rgba(0, 0, 0, 0.1) 0px 1px 3px 0px,
     rgba(0, 0, 0, 0.06) 0px 1px 2px 0px;
 `;
@@ -37,11 +38,14 @@ export const StyledAccordionTrigger = styled(Trigger)`
   justify-content: space-between;
 `;
 
-export const ItemTitle = styled(MediumHeader)``;
+export const ItemTitle = styled(SubHeader)`
 
-export const ItemDescription = styled(Caption)`
+`;
+
+export const ItemDescription = styled(Description)`
   padding: 0 36px 22px 36px;
   margin-bottom: 1.375rem;
+  
 `;
 
 export const StyledAccordionContent = styled(Content)`

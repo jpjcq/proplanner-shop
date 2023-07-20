@@ -15,8 +15,8 @@ export default function SelectionScreen({ activePicker }: { activePicker: string
     <SelectionTitle>
       {activePicker === "service" && (
         <>
-          <span>1.&nbsp;</span>
-          <div>
+          <span style={{fontSize: "20px"}}>1.&nbsp;</span>
+          <div style={{fontSize: "20px"}}>
             Choix de la
             <br />
             prestation:
@@ -25,8 +25,8 @@ export default function SelectionScreen({ activePicker }: { activePicker: string
       )}
       {activePicker === "date" && (
         <>
-          <span>2.&nbsp;</span>
-          <div>
+          <span style={{fontSize: "20px"}}>2.&nbsp;</span>
+          <div style={{fontSize: "20px"}}>
             Choix de la
             <br />
             date:

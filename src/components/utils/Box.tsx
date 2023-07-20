@@ -10,7 +10,7 @@ interface BoxProps {
   padding?: string;
 }
 
-const Box = styled.div`
+const Box = styled.div<BoxProps>`
   display: ${({ display }: BoxProps) => (display ? display : "flex")};
   flex-direction: ${({ direction }: BoxProps) => direction};
   justify-content: ${({ justify }: BoxProps) => (justify ? justify : "center")};

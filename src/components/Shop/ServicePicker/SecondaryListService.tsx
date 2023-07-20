@@ -8,7 +8,7 @@ export default function SecondaryList({
   service: Service;
 }) {
   return (
-    <Box direction="column" margin="0 0 2rem 0">
+    <Box style={{flexDirection: "column", margin:"0 0 2rem 0"}}>
       {service.secondaryServices.map((item, index, array) => (
         <SecondaryItem
           key={item._id}

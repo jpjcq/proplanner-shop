@@ -13,7 +13,7 @@ const FooterWrapper = styled.div`
 
 export default function Footer() {
   return (
-    <Box margin="5rem 0 .3rem 0">
+    <Box style={{margin: "5rem 0 .3rem 0"}}>
       <FooterWrapper>
         <FacebookIcon />
         <InstagramIcon />

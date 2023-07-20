@@ -12,8 +12,10 @@ import {
   AnimatedChevron,
   StyledAccordionTrigger,
 } from "../Accordion/MainItemComponents";
+import { useTheme } from "styled-components";
 
 export default function MainItem({ service }: { service: Service }) {
+  const theme = useTheme();
   const [isOpen, setIsOpen] = useState(false); // Only for +/- symbol, modify with chevron ?
 
   const variants: Variants = {
@@ -34,6 +36,7 @@ export default function MainItem({ service }: { service: Service }) {
             strokeWidth={2}
             size={20}
             animate={{ rotate: isOpen ? "180deg" : "0" }}
+            color={theme.textPrimary}
           />
         </StyledAccordionTrigger>
       </StyledAccordionHeader>

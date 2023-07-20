@@ -13,7 +13,7 @@ const context: {
   cartAmount: 0,
   totalDuration: 0,
   isEmpty: true,
-  addItemToCart: (item: ItemInCart) => {},
+  addItemToCart: () => {},
   removeItemFromCart: () => {},
 };
 

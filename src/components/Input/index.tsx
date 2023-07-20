@@ -1,30 +1,29 @@
 import { styled } from "styled-components";
-import { ThemeType } from "../../theme";
 
 export const FormInput = styled.input`
   all: unset;
+  font-size: 15px;
+  font-weight: 500;
+  color: black;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 4px;
-
-  font-size: 15px;
-  background-color: ${({theme}) => (theme as ThemeType).blackA.blackA5};
-  box-shadow: 0 0 0 1px ${({theme}) => (theme as ThemeType).blackA.blackA9};
-
-  padding: 0 10px;
   height: 35px;
-  line-height: 1;
+  padding: 0 10px;
+  background-color: white;
+  border: 1px solid ${({ theme }) => theme.blackA.blackA6};
+  border-radius: 4px;
+  box-shadow: ${({theme}) => theme.shadows.inputShadow};
 
   &:hover {
-    box-shadow: 0 0 0 1px black;
+    border: 2px solid black;
   }
 
   &:focus {
-    box-shadow: 0 0 0 2px black;
+    border: 2px solid ${({ theme }) => theme.olive.olive7};
   }
 
   &::selection {
-    background-color: ${({theme}) => (theme as ThemeType).blackA.blackA9};
+    background-color: ${({ theme }) => theme.blackA.blackA9};
   }
 `;

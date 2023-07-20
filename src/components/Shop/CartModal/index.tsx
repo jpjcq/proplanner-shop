@@ -8,7 +8,7 @@ import {
   AnimatedShopButtonPrimary,
   AnimatedShopButtonSecondary,
 } from "../../Button";
-import { WarningBox } from "../../Validation/TextBox";
+import { WarningBox } from "../../Validation";
 import CartItemList from "./CartItemList";
 import * as Dialog from "@radix-ui/react-dialog";
 import { Cross2Icon } from "@radix-ui/react-icons";

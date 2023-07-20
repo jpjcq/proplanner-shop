@@ -1,13 +1,13 @@
 import { ShopWelcomeNavbar } from "../components/Shop/Navbar";
 import FixedCenteringWrapper from "../components/utils/FixedCenteringWrapper";
-import LoginForm from "../components/Auth/LoginForm";
+import LoginModule from "../components/Auth/LoginModule";
 
-export default function AuthPage() {
+export default function LoginPage() {
   return (
     <>
       <ShopWelcomeNavbar />
       <FixedCenteringWrapper>
-        <LoginForm />
+        <LoginModule />
       </FixedCenteringWrapper>
     </>
   );

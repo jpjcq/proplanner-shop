@@ -4,7 +4,8 @@ import ServicePicker from "../components/Shop/ServicePicker";
 import Welcome from "../components/Shop/Welcome";
 import CartProvider from "../contexts/cart/CartProvider";
 import ShopPage from "../pages/ShopPage";
-import AuthPage from "../pages/AuthPage";
+import LoginPage from "../pages/LoginPage";
+import SignupPage from "../pages/SignupPage";
 
 const router = createBrowserRouter([
   {
@@ -34,8 +35,12 @@ const router = createBrowserRouter([
     ),
   },
   {
-    path: "/auth",
-    element: <AuthPage />,
+    path: "/auth/login",
+    element: <LoginPage />,
+  },
+  {
+    path: "/auth/signup",
+    element: <SignupPage />,
   },
 ]);
 

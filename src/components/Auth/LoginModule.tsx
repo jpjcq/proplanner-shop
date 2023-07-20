@@ -1,4 +1,5 @@
 import { FormEvent, useState } from "react";
+import { Link } from "react-router-dom";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../../firebase";
 import * as Form from "@radix-ui/react-form";
@@ -11,16 +12,23 @@ import {
   StyledFormRoot,
 } from "../Form";
 import { FormInput } from "../Input";
+import { SmallSubHeader } from "../../theme/text";
+import { useTheme } from "styled-components";
 
-export default function LoginForm() {
+export default function LoginModule() {
+  const theme = useTheme();
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState("");
 
   function handleFormSubmit(e: FormEvent) {
     e.preventDefault();
-    void (async function() {
+    void (async function () {
       try {
-        const credentials = await signInWithEmailAndPassword(auth, email, password);
+        const credentials = await signInWithEmailAndPassword(
+          auth,
+          email,
+          password
+        );
         console.log(credentials);
       } catch (error) {
         console.error(error);
@@ -75,7 +83,17 @@ export default function LoginForm() {
             />
           </Form.Control>
         </StyledFormField>
-        <StyledFormButton>Se connecter</StyledFormButton>
+        <StyledFormButton
+          whileTap={{ scale: 0.95, transition: { duration: 0.1 } }}
+        >
+          Se connecter
+        </StyledFormButton>
+        <SmallSubHeader style={{ marginTop: "20px" }} color="textSecondary">
+          Pas encore de compte ?{" "}
+          <Link to="/auth/signup" style={{ color:  theme.textSecondary}}>
+            S'inscrire
+          </Link>
+        </SmallSubHeader>
       </StyledFormRoot>
     </>
   );

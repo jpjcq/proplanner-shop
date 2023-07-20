@@ -1,7 +1,7 @@
 import { Field, Label, Message, Root, Submit } from "@radix-ui/react-form";
+import { motion, MotionProps } from "framer-motion";
 import { ReactNode } from "react";
 import { styled } from "styled-components";
-import { ThemeType } from "../../theme";
 
 export const StyledFormRoot = styled(Root)`
   display: flex;
@@ -21,6 +21,7 @@ export const StyledFormLabel = styled(Label)`
   font-size: 15px;
   font-weight: 600;
   line-height: 35px;
+  color: ${({ theme }) => theme.textSecondary};
 `;
 
 export const StyledFormMessage = styled(Message)`
@@ -28,20 +29,32 @@ export const StyledFormMessage = styled(Message)`
   opacity: 0.8;
 `;
 
-const StyledButton = styled.button`
+const StyledButton = styled(motion.button)`
   margin-top: 10px;
   border: none;
   border-radius: 4px;
   padding: 10px 18px;
-  background-color: ${({ theme }) => (theme as ThemeType).olive.olive7};
+  background-color: #6e7d59;
+  box-shadow: ${({ theme }) => theme.shadows.shallowShadow};
   color: white;
   font-weight: 600;
 `;
 
-export function StyledFormButton({ children }: { children: ReactNode }) {
+interface StyledFormButtonProps extends MotionProps {
+  children: ReactNode;
+  buttonId?: string;
+}
+
+export function StyledFormButton({
+  children,
+  buttonId,
+  ...props
+}: StyledFormButtonProps) {
   return (
     <Submit asChild>
-      <StyledButton>{children}</StyledButton>
+      <StyledButton id={buttonId} {...props}>
+        {children}
+      </StyledButton>
     </Submit>
   );
 }
