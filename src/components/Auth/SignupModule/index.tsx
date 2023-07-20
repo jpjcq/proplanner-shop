@@ -4,20 +4,17 @@ import {
   RecaptchaVerifier,
   User,
   signInWithPhoneNumber,
-  // updateEmail,
-  // updatePassword,
   deleteUser,
   ConfirmationResult,
 } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 import { auth, db } from "../../../firebase";
 import { isValidPhoneNumber } from "react-phone-number-input";
-import SmsCode from "./SmsCode";
+import SmsCode from "../SmsCode";
 import SignupForm from "./SignupForm";
 import NameForm from "./NameForm";
 import WelcomeUser from "./WelcomeUser";
 import SignupError from "./SignupError";
-// import hashEmail from "../../utils/hash";
 
 export default function SignupModule() {
   // User infos
@@ -78,9 +75,9 @@ export default function SignupModule() {
           }
         }
       })();
+    } else {
+      setShowPhoneInvalid(true);
     }
-
-    if (!isValidPhoneNumber(phone)) setShowPhoneInvalid(true);
   }
 
   // After code was typed
@@ -164,7 +161,9 @@ export default function SignupModule() {
         !showPhoneExists &&
         !showNameForm &&
         !showWelcomeUser &&
-        !showTooManyRequests && (
+        !showTooManyRequests &&
+        !showAccountAlreadyExists &&
+        !showFatalError && (
           <SignupForm
             setPhone={setPhone}
             setEmail={setEmail}
@@ -181,39 +180,22 @@ export default function SignupModule() {
         />
       )}
       {!showCodeInput && showPhoneExists && (
-        <SignupError
-          phoneExists
-          setShowCodeInput={setShowCodeInput}
-          setShowPhoneExists={setShowPhoneExists}
-          setShowTooManyRequests={setShowTooManyRequests}
-        />
+        <SignupError phoneExists setShowPhoneExists={setShowPhoneExists} />
       )}
       {!showCodeInput && showTooManyRequests && (
         <SignupError
           showTooManyRequests
-          setShowCodeInput={setShowCodeInput}
-          setShowPhoneExists={setShowPhoneExists}
           setShowTooManyRequests={setShowTooManyRequests}
         />
       )}
       {!showCodeInput && showAccountAlreadyExists && (
         <SignupError
           showAccountAlreadyExists
-          setShowCodeInput={setShowCodeInput}
-          setShowPhoneExists={setShowPhoneExists}
-          setShowTooManyRequests={setShowTooManyRequests}
           setShowAccountAlreadyExists={setShowAccountAlreadyExists}
         />
       )}
       {!showCodeInput && showFatalError && (
-        <SignupError
-          showFatalError
-          setShowCodeInput={setShowCodeInput}
-          setShowPhoneExists={setShowPhoneExists}
-          setShowTooManyRequests={setShowTooManyRequests}
-          setShowAccountAlreadyExists={setShowAccountAlreadyExists}
-          setShowFatalError={setShowFatalError}
-        />
+        <SignupError showFatalError setShowFatalError={setShowFatalError} />
       )}
       {!showCodeInput && showNameForm && (
         <NameForm

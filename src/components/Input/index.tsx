@@ -1,4 +1,7 @@
+import React from "react";
 import { styled } from "styled-components";
+import ReactPhoneInput from "react-phone-number-input";
+import countryCodes from "./countryCodes";
 
 export const FormInput = styled.input`
   all: unset;
@@ -13,7 +16,7 @@ export const FormInput = styled.input`
   background-color: white;
   border: 1px solid ${({ theme }) => theme.blackA.blackA6};
   border-radius: 4px;
-  box-shadow: ${({theme}) => theme.shadows.inputShadow};
+  box-shadow: ${({ theme }) => theme.shadows.inputShadow};
 
   &:hover {
     border: 2px solid black;
@@ -27,3 +30,20 @@ export const FormInput = styled.input`
     background-color: ${({ theme }) => theme.blackA.blackA9};
   }
 `;
+
+export function PhoneInput({
+  setPhone,
+}: {
+  setPhone: React.Dispatch<React.SetStateAction<string>>;
+}) {
+  return (
+    <ReactPhoneInput
+      countries={countryCodes}
+      onChange={(phone) => {
+        setPhone(phone as string);
+        console.log("phone ", phone);
+      }}
+      defaultCountry="FR"
+    />
+  );
+}

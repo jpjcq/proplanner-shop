@@ -10,11 +10,10 @@ import {
   StyledFormRoot,
 } from "../../Form";
 import { FormInput } from "../../Input";
-import PhoneInput from "react-phone-number-input";
+import { PhoneInput } from "../../Input";
 import "./phoneInput.css";
 import { WarningBox } from "../../Validation";
 import { useTheme } from "styled-components";
-import countryCodes from "./countryCodes";
 
 interface SignupFormProps {
   handleFormSubmit: (e: FormEvent) => void;
@@ -40,14 +39,7 @@ export default function SignupForm({
       <StyledFormRoot onSubmit={handleFormSubmit}>
         <StyledFormField name="phone">
           <StyledFormLabel>Téléphone</StyledFormLabel>
-          <PhoneInput
-            countries={countryCodes}
-            onChange={(phone) => {
-              setPhone(phone as string);
-              console.log("phone ", phone);
-            }}
-            defaultCountry="FR"
-          />
+          <PhoneInput setPhone={setPhone} />
         </StyledFormField>
         <StyledFormField name="email">
           <div

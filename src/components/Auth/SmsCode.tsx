@@ -1,7 +1,7 @@
 import styled from "styled-components";
-import { MediumHeader, SmallSubHeader } from "../../../theme/text";
+import { MediumHeader, SmallSubHeader } from "../../theme/text";
 import ReactCodeInput from "react-code-input";
-import { ErrorBox, InfoBox } from "../../Validation";
+import { ErrorBox, InfoBox } from "../Validation";
 
 const SmsWrapper = styled.div`
   display: flex;
