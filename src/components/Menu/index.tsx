@@ -1,12 +1,13 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext } from "react";
+import { Link } from "react-router-dom";
 import styled from "styled-components";
 import { Cross2Icon } from "@radix-ui/react-icons";
 import { AnimatePresence, motion } from "framer-motion";
-import { User, onAuthStateChanged, signOut } from "firebase/auth";
+import { signOut } from "firebase/auth";
 import { auth } from "../../firebase";
 import { ShopButtonPrimary } from "../Button";
-import { SmallSubHeader } from "../../theme/text";
-import { Link } from "react-router-dom";
+import { MediumHeader, SmallSubHeader } from "../../theme/text";
+import UserContext from "../../contexts/user/user-context";
 
 const Overlay = styled(motion.div)`
   position: fixed;
@@ -22,6 +23,7 @@ const Content = styled(motion.div)<{ isMenuOpen: boolean }>`
   justify-content: center;
   align-items: center;
   width: 310px;
+  padding: 40px;
 
   top: 0;
   bottom: 0;
@@ -35,7 +37,7 @@ const ConnectButton = styled(Link)`
   text-align: center;
   color: white;
   font-weight: 600;
-  background-color: ${({ theme }) => theme.olive.olive3};
+  background-color: ${({ theme }) => theme.accent};
   padding: 15px 23px;
   border-radius: 5px;
 `;
@@ -44,21 +46,29 @@ const SignUpButton = styled(Link)`
   all: unset;
   width: 55%;
   text-align: center;
-  color: ${({ theme }) => theme.olive.olive3};
+  color: ${({ theme }) => theme.accent};
   background-color: transparent;
   font-weight: 600;
-  border: 2px solid ${({ theme }) => theme.olive.olive3};
+  border: 2px solid ${({ theme }) => theme.accent};
   padding: 15px 23px;
   margin-top: 15px;
   border-radius: 5px;
 `;
 
 const DisconnectButton = styled(ShopButtonPrimary)`
+  width: fit-content;
   position: absolute;
   bottom: 10px;
   padding: 10px 15px;
   align-self: center;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
+`;
+
+const Separator = styled.div`
+  height: 2px;
+  width: 50%;
+  border-bottom: 2px solid ${({ theme }) => theme.accent};
+  margin-bottom: 40px;
 `;
 
 interface MenuProps {
@@ -67,21 +77,14 @@ interface MenuProps {
 }
 
 export default function Menu({ isMenuOpen, setIsMenuOpen }: MenuProps) {
-  const [user, setUser] = useState<null | User>(null);
-  console.log(user);
-  useEffect(() => {
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-        setUser(user);
-      } else {
-        setUser(null);
-      }
-    });
-  });
+  const userCtx = useContext(UserContext);
 
   function handleDisconnectButton() {
     void (async function () {
       await signOut(auth);
+      userCtx.setUser({
+        isConnected: false,
+      });
     })();
   }
   return (
@@ -116,17 +119,35 @@ export default function Menu({ isMenuOpen, setIsMenuOpen }: MenuProps) {
           <Cross2Icon height={20} width={20} />
         </button>
 
-        {!user && (
+        {!userCtx.isConnected && (
           <>
             <ConnectButton to="/auth/login">Se connecter</ConnectButton>
             <SignUpButton to="/auth/signup">S'inscrire</SignUpButton>
           </>
         )}
 
-        {user && (
-          <DisconnectButton onClick={handleDisconnectButton}>
-            <SmallSubHeader color={"white"}>Déconnexion</SmallSubHeader>
-          </DisconnectButton>
+        {userCtx.isConnected && (
+          <>
+            <Link
+              to="/profile?tab=rendez-vous"
+              onClick={() => setIsMenuOpen(false)}
+              style={{ marginBottom: "40px", textDecoration: "none" }}
+            >
+              <MediumHeader fontWeight={700}>Mes rendez-vous</MediumHeader>
+            </Link>
+            <Separator />
+            <Link
+              to="/profile?tab=profile"
+              onClick={() => setIsMenuOpen(false)}
+              style={{ textDecoration: "none" }}
+            >
+              <MediumHeader fontWeight={700}>Mon profile</MediumHeader>
+            </Link>
+
+            <DisconnectButton onClick={handleDisconnectButton}>
+              <SmallSubHeader color={"white"}>Déconnexion</SmallSubHeader>
+            </DisconnectButton>
+          </>
         )}
       </Content>
     </>

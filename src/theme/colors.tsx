@@ -67,22 +67,21 @@ const colors = {
       text: "#491d20",
     },
     purple: {
-      light: "#702eff32",
-      regular: "#712EFF",
-      text: "#2b1c4b",
+      light: "#057dcd30",
+      regular: "#057dcd",
+      text: "#16364b",
     },
   },
 };
 
 export const lightColors = {
   ...colors,
+  // background: "#f9faf7",
   background: "#F7F8FA",
-
-  // textPrimary: olive.olive5,
-  textPrimary: "#505E7D",
-  // textSecondary: olive.olive3,
+  textPrimary: "#45516b",
   textSecondary: "#6E7A96",
   lightBorder: "#D6DAE1",
+  accent: "#606d4e",
 };
 
 export const darkTheme = {};

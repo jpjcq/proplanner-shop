@@ -55,6 +55,7 @@ const WarningDiv = styled.div`
 `;
 
 const ErrorDiv = styled.div`
+  max-width: 260px;
   display: flex;
   justify-content: space-evenly;
   align-items: center;

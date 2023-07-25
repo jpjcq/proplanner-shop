@@ -1,6 +1,10 @@
-import { ReactNode, useReducer, Reducer } from "react";
+import { ReactNode, useReducer } from "react";
 import { SecondaryServices } from "../../types/services";
 import CartContext from "./cart-context";
+
+export interface ItemInCart extends SecondaryServices {
+  quantity: number;
+}
 
 const initialCartState = {
   cartItems: [],
@@ -8,10 +12,6 @@ const initialCartState = {
   totalDuration: 0,
   isEmpty: true,
 };
-
-export interface ItemInCart extends SecondaryServices {
-  quantity: number;
-}
 
 interface StateType {
   cartItems: ItemInCart[];
@@ -22,13 +22,13 @@ interface StateType {
 
 interface ActionType {
   type: string;
-  payload: ItemInCart | ItemInCart["_id"];
+  payload: ItemInCart | ItemInCart["_id"] | ItemInCart[];
 }
 
-const cartStateReducer: Reducer<StateType, ActionType> = (state, action) => {
+function cartReducer(state: StateType, action: ActionType) {
   function getTotalDuration(cartItems: ItemInCart[]): number {
     let totalDuration = 0;
-    cartItems.forEach(item => {
+    cartItems.forEach((item) => {
       const duration = item.duration * item.quantity;
       totalDuration += duration;
     });
@@ -36,13 +36,16 @@ const cartStateReducer: Reducer<StateType, ActionType> = (state, action) => {
   }
   switch (action.type) {
     case "ADD":
+      // eslint-disable-next-line no-case-declarations
       const existingCartItem = state.cartItems.find(
-        item => item.short === (action.payload as ItemInCart).short
+        (item) => item.short === (action.payload as ItemInCart).short
       );
+      // eslint-disable-next-line no-case-declarations
       const existingCartItemIndex = state.cartItems.findIndex(
-        item => item.short === (action.payload as ItemInCart).short
+        (item) => item.short === (action.payload as ItemInCart).short
       );
-      let updatedCartItems;
+      // eslint-disable-next-line no-case-declarations
+      let updatedCartItems: ItemInCart[];
       if (existingCartItem) {
         const updatedItem = {
           ...existingCartItem,
@@ -51,7 +54,7 @@ const cartStateReducer: Reducer<StateType, ActionType> = (state, action) => {
         updatedCartItems = [...state.cartItems];
         updatedCartItems[existingCartItemIndex] = updatedItem;
       } else {
-        updatedCartItems = state.cartItems.concat(action.payload as ItemInCart);
+        updatedCartItems = state.cartItems.concat(action.payload as never[]);
       }
       return {
         isEmpty: false,
@@ -60,24 +63,27 @@ const cartStateReducer: Reducer<StateType, ActionType> = (state, action) => {
         totalDuration: getTotalDuration(updatedCartItems),
       };
     case "REMOVE":
+      // eslint-disable-next-line no-case-declarations
       const idToRemove = action.payload;
+      // eslint-disable-next-line no-case-declarations
       const itemToDecrement = state.cartItems.find(
-        item => item._id === idToRemove
+        (item) => item._id === idToRemove
       );
       if (itemToDecrement) {
+        // eslint-disable-next-line no-case-declarations
         const itemDecremented = {
           ...itemToDecrement,
           quantity: itemToDecrement.quantity - 1,
         };
         const newCartItems = state.cartItems
-          .map(item => {
+          .map((item) => {
             if (item._id === idToRemove) {
               return itemDecremented;
             } else {
               return item;
             }
           })
-          .filter(item => item.quantity > 0);
+          .filter((item) => item.quantity > 0);
         return {
           isEmpty: newCartItems.length === 0 ? true : false,
           cartItems: newCartItems,
@@ -90,7 +96,7 @@ const cartStateReducer: Reducer<StateType, ActionType> = (state, action) => {
     default:
       return state;
   }
-};
+}
 
 interface CartProviderProps {
   children: ReactNode;
@@ -98,7 +104,7 @@ interface CartProviderProps {
 
 export default function CartProvider({ children }: CartProviderProps) {
   const [cartState, dispatchCartState] = useReducer(
-    cartStateReducer,
+    cartReducer,
     initialCartState
   );
 

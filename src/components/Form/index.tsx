@@ -34,7 +34,7 @@ const StyledButton = styled(motion.button)`
   border: none;
   border-radius: 4px;
   padding: 10px 18px;
-  background-color: #6e7d59;
+  background-color: ${({theme}) => theme.accent};
   box-shadow: ${({ theme }) => theme.shadows.shallowShadow};
   color: white;
   font-weight: 600;

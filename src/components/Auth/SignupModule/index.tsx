@@ -1,4 +1,5 @@
 import { FormEvent, useEffect, useState } from "react";
+import { styled } from "styled-components";
 import {
   AuthError,
   RecaptchaVerifier,
@@ -6,6 +7,7 @@ import {
   signInWithPhoneNumber,
   deleteUser,
   ConfirmationResult,
+  signOut,
 } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 import { auth, db } from "../../../firebase";
@@ -14,7 +16,17 @@ import SmsCode from "../SmsCode";
 import SignupForm from "./SignupForm";
 import NameForm from "./NameForm";
 import WelcomeUser from "./WelcomeUser";
-import SignupError from "./SignupError";
+import ErrorModule from "../../Error/Index";
+
+const StyledButton = styled.button`
+  margin-top: 10px;
+  border: none;
+  border-radius: 4px;
+  padding: 10px 18px;
+  background-color: ${({ theme }) => theme.olive.olive7};
+  color: white;
+  font-weight: 600;
+`;
 
 export default function SignupModule() {
   // User infos
@@ -38,7 +50,7 @@ export default function SignupModule() {
   const [showWelcomeUser, setShowWelcomeUser] = useState(false);
 
   // Error page
-  const [showPhoneExists, setShowPhoneExists] = useState(false);
+  // const [showPhoneExists, setShowPhoneExists] = useState(false);
   const [showTooManyRequests, setShowTooManyRequests] = useState(false);
   const [showAccountAlreadyExists, setShowAccountAlreadyExists] =
     useState(false);
@@ -93,9 +105,7 @@ export default function SignupModule() {
 
             const userRef = doc(db, "users", userCredential.user.uid);
             const userDocSnapshot = await getDoc(userRef);
-            console.log("exist: ", userDocSnapshot.exists());
             if (userDocSnapshot.exists()) {
-              console.log("it exists");
               if (userDocSnapshot.data().last && userDocSnapshot.data().first) {
                 setShowAccountAlreadyExists(true);
                 setShowCodeInput(false);
@@ -104,7 +114,6 @@ export default function SignupModule() {
                 setShowCodeInput(false);
               }
             } else {
-              console.log("it doesn't exists");
               setShowNameForm(true);
               setShowCodeInput(false);
             }
@@ -115,14 +124,6 @@ export default function SignupModule() {
           if ((e as AuthError).code === "auth/invalid-verification-code") {
             setShowCodeSent(false);
             setShowWrongCode(true);
-          }
-          if (
-            (e as AuthError).code ===
-            "auth/account-exists-with-different-credential"
-          ) {
-            setShowCodeInput(false);
-            setShowPhoneExists(true);
-            return;
           }
           setCodeErrorCounter((code) => code + 1);
           if (codeErrorCounter === 2) {
@@ -144,8 +145,6 @@ export default function SignupModule() {
     codeErrorTrigger,
     confirmationResultState,
   ]);
-  console.log("error trigger: ", codeErrorTrigger);
-  console.log("show name form: ", showNameForm);
 
   // Reset code error trigger
   useEffect(() => {
@@ -158,7 +157,6 @@ export default function SignupModule() {
   return (
     <>
       {!showCodeInput &&
-        !showPhoneExists &&
         !showNameForm &&
         !showWelcomeUser &&
         !showTooManyRequests &&
@@ -170,6 +168,7 @@ export default function SignupModule() {
             setPassword={setPassword}
             handleFormSubmit={handleFormSubmit}
             showPhoneInvalid={showPhoneInvalid}
+            showAccountAlreadyExists={showAccountAlreadyExists}
           />
         )}
       {showCodeInput && (
@@ -179,23 +178,39 @@ export default function SignupModule() {
           showWrongCode={showWrongCode}
         />
       )}
-      {!showCodeInput && showPhoneExists && (
-        <SignupError phoneExists setShowPhoneExists={setShowPhoneExists} />
-      )}
       {!showCodeInput && showTooManyRequests && (
-        <SignupError
-          showTooManyRequests
-          setShowTooManyRequests={setShowTooManyRequests}
-        />
-      )}
-      {!showCodeInput && showAccountAlreadyExists && (
-        <SignupError
-          showAccountAlreadyExists
-          setShowAccountAlreadyExists={setShowAccountAlreadyExists}
-        />
+        <ErrorModule
+          title="Trop de requêtes"
+          description="Vous avez atteint le nombre maximum de requêtes. Merci de réessayer
+        ultérieurement."
+        >
+          <StyledButton onClick={() => setShowTooManyRequests(false)}>
+            Retour
+          </StyledButton>
+        </ErrorModule>
       )}
       {!showCodeInput && showFatalError && (
-        <SignupError showFatalError setShowFatalError={setShowFatalError} />
+        <ErrorModule
+          title="Erreur fatale"
+          description="Une erreur s'est produite lors du processus d'inscription. Veuillez
+        recommencer."
+        >
+          <StyledButton
+            onClick={() =>
+              void (async function () {
+                try {
+                  await signOut(auth);
+                  setShowFatalError?.(false);
+                } catch (e) {
+                  console.log(e);
+                  setShowFatalError?.(false);
+                }
+              })()
+            }
+          >
+            Retour
+          </StyledButton>
+        </ErrorModule>
       )}
       {!showCodeInput && showNameForm && (
         <NameForm

@@ -1,7 +1,8 @@
 import { FormEvent } from "react";
-import { MediumHeader, SmallSubHeader } from "../../../theme/text";
+import { useTheme } from "styled-components";
 import { Link } from "react-router-dom";
 import * as Form from "@radix-ui/react-form";
+import { MediumHeader, SmallSubHeader } from "../../../theme/text";
 import {
   StyledFormButton,
   StyledFormField,
@@ -11,9 +12,8 @@ import {
 } from "../../Form";
 import { FormInput } from "../../Input";
 import { PhoneInput } from "../../Input";
+import { ErrorBox, WarningBox } from "../../Validation";
 import "./phoneInput.css";
-import { WarningBox } from "../../Validation";
-import { useTheme } from "styled-components";
 
 interface SignupFormProps {
   handleFormSubmit: (e: FormEvent) => void;
@@ -21,6 +21,7 @@ interface SignupFormProps {
   setEmail: React.Dispatch<React.SetStateAction<string>>;
   setPassword: React.Dispatch<React.SetStateAction<string>>;
   showPhoneInvalid: boolean;
+  showAccountAlreadyExists: boolean;
 }
 
 export default function SignupForm({
@@ -29,6 +30,7 @@ export default function SignupForm({
   setEmail,
   setPassword,
   showPhoneInvalid,
+  showAccountAlreadyExists,
 }: SignupFormProps) {
   const theme = useTheme();
   return (
@@ -89,6 +91,9 @@ export default function SignupForm({
         </StyledFormField>
         {showPhoneInvalid && (
           <WarningBox>Le numéro de téléphone fourni est invalide</WarningBox>
+        )}
+        {showAccountAlreadyExists && (
+          <ErrorBox>Un compte est déjà associé à ce numéro</ErrorBox>
         )}
         <StyledFormButton
           buttonId="sign-in-button"

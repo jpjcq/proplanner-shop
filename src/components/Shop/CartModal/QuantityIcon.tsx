@@ -2,7 +2,6 @@ import { useContext } from "react";
 import { Text } from "rebass";
 import styled, { useTheme } from "styled-components";
 import CartContext from "../../../contexts/cart/cart-context";
-import { Theme } from "../../../theme/colors";
 
 const IconWrapper = styled.div`
   position: absolute;
@@ -20,7 +19,7 @@ const Number = styled(Text)`
 `;
 
 export function QuantityIconRing() {
-  const theme = useTheme() as Theme;
+  const theme = useTheme();
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"

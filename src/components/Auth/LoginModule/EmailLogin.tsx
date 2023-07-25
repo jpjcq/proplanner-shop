@@ -8,20 +8,36 @@ import {
   StyledFormMessage,
   StyledFormRoot,
 } from "../../Form";
+import { ErrorBox } from "../../Validation";
+import { SmallSubHeader } from "../../../theme/text";
+import { Link } from "react-router-dom";
+import { useTheme } from "styled-components";
 
 interface EmailLoginProps {
+  email: string;
   setEmail: React.Dispatch<React.SetStateAction<string>>;
   setPassword: React.Dispatch<React.SetStateAction<string>>;
   handleFormSubmit: (e: FormEvent) => void;
+  showEmailPasswordInvalid: boolean;
 }
 
 export default function EmailLogin({
+  email,
   setEmail,
   setPassword,
   handleFormSubmit,
+  showEmailPasswordInvalid,
 }: EmailLoginProps) {
+  const theme = useTheme();
+
   return (
-    <StyledFormRoot onSubmit={handleFormSubmit}>
+    <StyledFormRoot onSubmit={handleFormSubmit} style={{
+      height: "100%",
+      display: "flex",
+      flexDirection: "column",
+      justifyContent: "center",
+      alignItems: "center",
+    }}>
       <StyledFormField name="email">
         <div
           style={{
@@ -39,6 +55,7 @@ export default function EmailLogin({
         <Form.Control asChild>
           <FormInput
             type="email"
+            defaultValue={email}
             required
             onChange={(e) => setEmail(e.target.value)}
           />
@@ -62,7 +79,15 @@ export default function EmailLogin({
             onChange={(e) => setPassword(e.target.value)}
           />
         </Form.Control>
+        <SmallSubHeader style={{ marginTop: "20px" }} color="textSecondary">
+            <Link to="/reset-password" style={{ color: theme.textSecondary }}>
+              Mot de passe oublié ?
+            </Link>
+          </SmallSubHeader>
       </StyledFormField>
+      {showEmailPasswordInvalid && (
+        <ErrorBox>Email et/ou mot de passe érroné</ErrorBox>
+      )}
       <StyledFormButton
         buttonId="login-button"
         whileTap={{ scale: 0.95, transition: { duration: 0.1 } }}

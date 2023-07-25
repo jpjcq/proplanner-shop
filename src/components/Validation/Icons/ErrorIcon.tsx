@@ -13,7 +13,7 @@ export default function ErrorIcon() {
       <circle cx="12" cy="12" r="12" fill={theme.validation.red.regular} />
       <path
         d="M8 8L16 16M16 8L8 16"
-        stroke={theme.validation.red.text}
+        stroke="#FFF"
         strokeWidth="2"
         strokeLinecap="round"
         strokeLinejoin="round"

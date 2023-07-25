@@ -4,9 +4,11 @@ import ServicePicker from "../components/Shop/ServicePicker";
 import Welcome from "../components/Shop/Welcome";
 import CartProvider from "../contexts/cart/CartProvider";
 import ShopPage from "../pages/ShopPage";
-import LoginPage from "../pages/LoginPage";
-import SignupPage from "../pages/SignupPage";
+import ProfilePage from "../pages/ProfilePage";
 import AuthPage from "../pages/AuthPage";
+import SignupModule from "../components/Auth/SignupModule";
+import LoginModule from "../components/Auth/LoginModule";
+import ResetPasswordPage from "../pages/ResetPasswordPage";
 
 const router = createBrowserRouter([
   {
@@ -39,17 +41,25 @@ const router = createBrowserRouter([
     path: "/auth/login",
     element: (
       <AuthPage>
-        <LoginPage />
+        <LoginModule />
       </AuthPage>
     ),
+  },
+  {
+    path: "/reset-password",
+    element: <ResetPasswordPage />,
   },
   {
     path: "/auth/signup",
     element: (
       <AuthPage>
-        <SignupPage />
+        <SignupModule />
       </AuthPage>
     ),
+  },
+  {
+    path: "/profile",
+    element: <ProfilePage />,
   },
 ]);
 

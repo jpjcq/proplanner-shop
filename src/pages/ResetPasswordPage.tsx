@@ -1,13 +1,13 @@
+import ResetPasswordModule from "../components/Auth/ResetPasswordModule";
 import { ShopWelcomeNavbar } from "../components/Shop/Navbar";
 import FixedCenteringWrapper from "../components/utils/FixedCenteringWrapper";
-import LoginModule from "../components/Auth/LoginModule";
 
-export default function LoginPage() {
+export default function ResetPasswordPage() {
   return (
     <>
       <ShopWelcomeNavbar />
       <FixedCenteringWrapper>
-        <LoginModule />
+        <ResetPasswordModule />
       </FixedCenteringWrapper>
     </>
   );

@@ -7,7 +7,6 @@ export const FormInput = styled.input`
   all: unset;
   font-size: 15px;
   font-weight: 500;
-  color: black;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -33,11 +32,14 @@ export const FormInput = styled.input`
 
 export function PhoneInput({
   setPhone,
+  value,
 }: {
   setPhone: React.Dispatch<React.SetStateAction<string>>;
+  value?: string;
 }) {
   return (
     <ReactPhoneInput
+      value={value}
       countries={countryCodes}
       onChange={(phone) => {
         setPhone(phone as string);

@@ -13,7 +13,9 @@ const context: {
   cartAmount: 0,
   totalDuration: 0,
   isEmpty: true,
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   addItemToCart: () => {},
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   removeItemFromCart: () => {},
 };
 

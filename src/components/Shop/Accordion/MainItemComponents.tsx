@@ -2,7 +2,7 @@ import { Item, Header, Trigger, Content } from "@radix-ui/react-accordion";
 import styled from "styled-components";
 import { motion } from "framer-motion";
 import { ChevronDown } from "react-feather";
-import { Caption, Description, SubHeader } from "../../../theme/text";
+import {  Description, SubHeader } from "../../../theme/text";
 
 export const StyledAccordionItem = styled(Item)`
   display: flex;

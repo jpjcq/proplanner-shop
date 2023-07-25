@@ -1,7 +1,14 @@
-import React, { FormEvent } from "react";
+import React, { FormEvent, useContext, useState } from "react";
 import styled from "styled-components";
 import { doc, setDoc } from "firebase/firestore";
-import { AuthError, User, updateEmail, updatePassword } from "firebase/auth";
+import UserContext from "../../../contexts/user/user-context";
+import {
+  AuthError,
+  User,
+  updateEmail,
+  updatePassword,
+  updateProfile,
+} from "firebase/auth";
 import { db } from "../../../firebase";
 import * as Form from "@radix-ui/react-form";
 import { MediumHeader, ValidationCaption } from "../../../theme/text";
@@ -12,6 +19,8 @@ import {
   StyledFormRoot,
 } from "../../Form";
 import { FormInput } from "../../Input";
+import capitalizeFirstChar from "../../utils/capitalizeFirstChar";
+import { InfoBox } from "../../Validation";
 
 const NameWrapper = styled.div`
   display: flex;
@@ -47,22 +56,32 @@ export default function NameForm({
   setShowWelcomeUser,
   setShowFatalError,
 }: NameFormProps) {
-  function handleFormSubmit(e: FormEvent) {
+  const userCtx = useContext(UserContext);
+  const [showWait, setShowWait] = useState(false);
+
+  function handleNameFormSubmit(e: FormEvent) {
     e.preventDefault();
     void (async function () {
       try {
+        setShowWait(true);
         // Addind user in "users" db
         const userRef = doc(db, "users", user?.uid as string);
-        const userDoc = await setDoc(userRef, {
-          phone: user?.phoneNumber,
+        await setDoc(userRef, {
+          phone: user?.phoneNumber as string,
           email: email,
-          last: last,
-          first: first,
+          last: capitalizeFirstChar(last),
+          first: capitalizeFirstChar(first),
         });
-        console.log("Firestore user document added: ", userDoc);
-
+        if (user)
+          await updateProfile(user, {
+            displayName: capitalizeFirstChar(first),
+          });
         if (user) await updateEmail(user, email);
         if (user) await updatePassword(user, password);
+        // userCtx.setUser({
+        //   isConnected: true,
+        //   displayName: user?.displayName ? user.displayName : undefined,
+        // });
 
         setShowNameForm(false);
         setShowWelcomeUser(true);
@@ -83,7 +102,7 @@ export default function NameForm({
       <ValidationCaption style={{ textAlign: "center", marginBottom: "20px" }}>
         Veuillez entrer votre nom et prénom afin de terminer votre inscription
       </ValidationCaption>
-      <StyledFormRoot onSubmit={handleFormSubmit}>
+      <StyledFormRoot onSubmit={handleNameFormSubmit}>
         <StyledFormField name="last">
           <StyledFormLabel>Nom</StyledFormLabel>
           <Form.Message match="valueMissing">
@@ -110,6 +129,7 @@ export default function NameForm({
             />
           </Form.Control>
         </StyledFormField>
+        {showWait && <InfoBox>Patientez..</InfoBox>}
         <StyledFormButton>Envoyer</StyledFormButton>
       </StyledFormRoot>
     </NameWrapper>

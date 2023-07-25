@@ -1,31 +1,38 @@
-import { FormEvent, useState, useEffect } from "react";
-import { auth } from "../../../firebase";
+import { FormEvent, useState, useEffect, useContext } from "react";
+import { auth, db } from "../../../firebase";
 import {
   AuthError,
   ConfirmationResult,
   RecaptchaVerifier,
+  onAuthStateChanged,
   signInWithEmailAndPassword,
   signInWithPhoneNumber,
+  signOut,
 } from "firebase/auth";
 import { MediumHeader, SmallSubHeader } from "../../../theme/text";
 import EmailLogin from "./EmailLogin";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { useTheme } from "styled-components";
 import PhoneLogin from "./PhoneLogin";
 import {
-  StyledContent,
-  StyledList,
-  StyledRoot,
-  StyledTrigger,
+  StyledTabContent,
+  StyledTabList,
+  StyledTabRoot,
+  StyledTabTrigger,
 } from "../../Tabs";
 import SmsCode from "../SmsCode";
-import SignupError from "../SignupModule/SignupError";
 import { isValidPhoneNumber } from "react-phone-number-input";
+import ToastContext from "../../../contexts/toast/toast-context";
+import { doc, getDoc } from "firebase/firestore";
+import UserContext from "../../../contexts/user/user-context";
 
 export default function LoginModule() {
   const theme = useTheme();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<"email" | "phone">("email");
+  const toastCtx = useContext(ToastContext);
+  const userCtx = useContext(UserContext);
+
+  // User creds
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState("");
@@ -38,15 +45,31 @@ export default function LoginModule() {
   const [codeErrorTrigger, setCodeErrorTrigger] = useState(false);
 
   // Layout
+  const [activeTab, setActiveTab] = useState<"email" | "phone">("email");
   const [showCodeInput, setShowCodeInput] = useState(false);
+  const [isConnected, setIsConnected] = useState(false);
 
   // Validation boxes
+  const [showEmailPasswordInvalid, setShowEmailPasswordInvalid] =
+    useState(false);
   const [showPhoneInvalid, setShowPhoneInvalid] = useState(false);
   const [showCodeSent, setShowCodeSent] = useState(false);
   const [showWrongCode, setShowWrongCode] = useState(false);
-
-  // Error page
+  const [showInexistingAccount, setShowInexistingAccount] = useState(false);
+  const [showPhoneConnecting, setShowPhoneConnecting] = useState(false);
   const [showPhoneExists, setShowPhoneExists] = useState(false);
+
+  // Automatic tab
+  const location = useLocation();
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    if (params.get("tab")) {
+      setActiveTab(params.get("tab") as "email" | "phone");
+    }
+    if (params.get("email")) {
+      setEmail(params.get("email") as string);
+    }
+  }, [setActiveTab, location.search]);
 
   function handleFormSubmit(e: FormEvent) {
     e.preventDefault();
@@ -58,10 +81,23 @@ export default function LoginModule() {
             email,
             password
           );
-          console.log(credentials);
+          const userDocRef = doc(db, "users", credentials.user.uid);
+          const docSnap = await getDoc(userDocRef);
+          if (docSnap.exists()) {
+            userCtx.setUser({
+              isConnected: true,
+              displayName: credentials.user.displayName
+                ? credentials.user.displayName
+                : undefined,
+            });
+          }
           navigate("/shop/service");
+          if (docSnap.exists()) {
+            toastCtx.showConnectedToast(docSnap.data().first as string);
+          }
         } catch (error) {
           console.error(error);
+          setShowEmailPasswordInvalid(true);
         }
       })();
     }
@@ -76,7 +112,6 @@ export default function LoginModule() {
             phone,
             verifier
           );
-          console.log("here")
           setConfirmationResultState(confirmationResult);
           setShowCodeInput(true);
         })();
@@ -96,7 +131,32 @@ export default function LoginModule() {
           if (confirmationResultState) {
             const userCredential = await confirmationResultState.confirm(code);
             if (userCredential) {
-              navigate("/shop/service");
+              const userDocRef = doc(db, "users", userCredential.user.uid);
+              const docSnap = await getDoc(userDocRef);
+              if (docSnap.exists()) {
+                if (docSnap.data().last && docSnap.data().first) {
+                  setShowInexistingAccount(false);
+                  setShowPhoneConnecting(true);
+                  userCtx.setUser({
+                    isConnected: true,
+                    displayName: userCredential.user.displayName
+                      ? userCredential.user.displayName
+                      : undefined,
+                  });
+                  navigate("/shop/service");
+                  toastCtx.showConnectedToast(docSnap.data().first as string);
+                } else {
+                  setShowInexistingAccount(true);
+                  await signOut(auth);
+                  setShowCodeInput(false);
+                  setActiveTab("phone");
+                }
+              } else {
+                setShowInexistingAccount(true);
+                setShowCodeInput(false);
+                setActiveTab("phone");
+                await signOut(auth);
+              }
             }
           }
         } catch (e) {
@@ -130,6 +190,8 @@ export default function LoginModule() {
     codeErrorTrigger,
     confirmationResultState,
     navigate,
+    toastCtx,
+    userCtx,
   ]);
 
   // Reset code error trigger
@@ -140,37 +202,70 @@ export default function LoginModule() {
     }
   }, [code, codeErrorTrigger]);
 
+  // Check if already logged in
+  useEffect(() => {
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        void (async function () {
+          try {
+            const userDocRef = doc(db, "users", user.uid);
+            const docSnap = await getDoc(userDocRef);
+            if (docSnap.exists()) {
+              setIsConnected(true);
+            }
+          } catch (e) {
+            console.log(e);
+          }
+        })();
+      }
+    });
+  }, []);
+
   return (
     <>
-      {!showCodeInput && !showPhoneExists && (
+      {
+        isConnected && !showInexistingAccount && (
+          <Navigate to="/profile" />
+        ) /* /!\ MODIFIER ET REDIRIGER VERS USER ACCOUNT PAGE /!\ */
+      }
+
+      {/* DEFAULT SCREEN */}
+      {!showCodeInput && (
         <>
           <MediumHeader fontWeight={700} style={{ marginBottom: "40px" }}>
             Se connecter
           </MediumHeader>
 
-          <StyledRoot
+          <StyledTabRoot
             defaultValue="email"
+            value={activeTab}
             onValueChange={(value) => setActiveTab(value as "email" | "phone")}
           >
-            <StyledList>
-              <StyledTrigger value="email">Email</StyledTrigger>
-              <StyledTrigger value="phone">Tel</StyledTrigger>
-            </StyledList>
-            <StyledContent value="phone">
+            <StyledTabList>
+              <StyledTabTrigger value="email">Email</StyledTabTrigger>
+              <StyledTabTrigger value="phone">Tel</StyledTabTrigger>
+            </StyledTabList>
+            <StyledTabContent value="phone">
               <PhoneLogin
+                phone={phone}
                 setPhone={setPhone}
                 showPhoneInvalid={showPhoneInvalid}
+                showPhoneExists={showPhoneExists}
+                showInexistingAccount={showInexistingAccount}
+                showPhoneConnecting={showPhoneConnecting}
                 handleFormSubmit={handleFormSubmit}
               />
-            </StyledContent>
-            <StyledContent value="email">
+            </StyledTabContent>
+            <StyledTabContent value="email">
               <EmailLogin
+                email={email}
                 setEmail={setEmail}
                 setPassword={setPassword}
                 handleFormSubmit={handleFormSubmit}
+                showEmailPasswordInvalid={showEmailPasswordInvalid}
               />
-            </StyledContent>
-          </StyledRoot>
+            </StyledTabContent>
+          </StyledTabRoot>
           <SmallSubHeader style={{ marginTop: "20px" }} color="textSecondary">
             Pas encore de compte ?{" "}
             <Link to="/auth/signup" style={{ color: theme.textSecondary }}>
@@ -180,16 +275,13 @@ export default function LoginModule() {
         </>
       )}
 
-      {showCodeInput && !showPhoneExists && (
+      {/* SMS CODE INPUT SCREEN */}
+      {showCodeInput && (
         <SmsCode
           setCode={setCode}
           showCodeSent={showCodeSent}
           showWrongCode={showWrongCode}
         />
-      )}
-
-      {!showCodeInput && showPhoneExists && (
-        <SignupError phoneExists setShowPhoneExists={setShowPhoneExists} />
       )}
     </>
   );

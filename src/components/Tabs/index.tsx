@@ -1,26 +1,29 @@
 import { styled } from "styled-components";
 import * as Tabs from "@radix-ui/react-tabs";
 
-export const StyledRoot = styled(Tabs.Root)`
+export const StyledTabRoot = styled(Tabs.Root)`
   display: flex;
   flex-direction: column;
 `;
 
-export const StyledList = styled(Tabs.List)`
+export const StyledTabList = styled(Tabs.List)<{ $isProfile?: boolean }>`
   flex-shrink: 0;
   display: flex;
-  margin-bottom: 30px;
-
+  margin-bottom: ${({ $isProfile }) => ($isProfile ? "0" : "30px")};
+  box-shadow: ${({ $isProfile, theme }) =>
+    $isProfile ? theme.shadows.shallowShadow : "none"};
 `;
 
-export const StyledTrigger = styled(Tabs.Trigger)`
+export const StyledTabTrigger = styled(Tabs.Trigger)<{ $isProfile?: boolean }>`
   all: unset;
   font-size: 15px;
   font-weight: 600;
   line-height: 35px;
   color: ${({ theme }) => theme.textSecondary};
+  border-bottom: ${({ $isProfile }) =>
+    $isProfile ? "none" : "1px solid lightgrey"};
 
-  padding: 0 20px;
+  padding: ${({$isProfile}) => $isProfile ? "5px 20px" : "0 20px"};
   height: 45px;
   flex: 1;
   display: flex;
@@ -49,13 +52,13 @@ export const StyledTrigger = styled(Tabs.Trigger)`
   }
 `;
 
-export const StyledContent = styled(Tabs.Content)`
+export const StyledTabContent = styled(Tabs.Content)`
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  
-  &[data-state="active"]{
-    min-height: 170px;
+
+  &[data-state="active"] {
+    min-height: 250px;
   }
 `;
