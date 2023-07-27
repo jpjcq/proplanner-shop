@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction } from "react";
+import { useContext } from "react";
 import {
   StyledToastAction,
   StyledToastDescription,
@@ -7,26 +7,19 @@ import {
   StyledToastViewport,
 } from "./components";
 import { ShopButtonPrimary } from "../Button";
+import ToastContext from "../../contexts/toast/toast-context";
 
-interface ToastProps {
-  title: string;
-  description: string;
-  open: boolean;
-  setOpen?: Dispatch<SetStateAction<boolean>>;
-}
-
-export default function Toast({
-  title,
-  description,
-  open,
-  setOpen,
-}: ToastProps) {
+export default function Toast() {
+  const toastCtx = useContext(ToastContext);
 
   return (
     <>
-      <StyledToastRoot open={open} onOpenChange={setOpen}>
-        <StyledToastTitle>{title}</StyledToastTitle>
-        <StyledToastDescription>{description}</StyledToastDescription>
+      <StyledToastRoot
+        open={toastCtx.isOpen}
+        onOpenChange={() => toastCtx.dismissToast()}
+      >
+        <StyledToastTitle>{toastCtx.text.title}</StyledToastTitle>
+        <StyledToastDescription>{toastCtx.text.text}</StyledToastDescription>
         <StyledToastAction altText="retour" asChild>
           <ShopButtonPrimary>Retour</ShopButtonPrimary>
         </StyledToastAction>
