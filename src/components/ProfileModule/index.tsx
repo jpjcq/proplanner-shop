@@ -6,7 +6,7 @@ import {
   StyledTabTrigger,
 } from "../Tabs";
 import RendezVousContent from "./RendezVousContent";
-import ProfileContent from "./ProfileContent";
+import UserDetailsContent from "./UserDetailsContent";
 import { User, onAuthStateChanged } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 import { auth, db } from "../../firebase";
@@ -72,7 +72,7 @@ export default function ProfileModule() {
         <RendezVousContent />
       </StyledTabContent>
       <StyledTabContent value="profile">
-        <ProfileContent
+        <UserDetailsContent
           userState={userState!}
           docPhone={docPhone}
           phone={phone}

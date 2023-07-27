@@ -9,6 +9,7 @@ import AuthPage from "../pages/AuthPage";
 import SignupModule from "../components/Auth/SignupModule";
 import LoginModule from "../components/Auth/LoginModule";
 import ResetPasswordPage from "../pages/ResetPasswordPage";
+import ProfileModule from "../components/ProfileModule";
 
 const router = createBrowserRouter([
   {
@@ -59,7 +60,11 @@ const router = createBrowserRouter([
   },
   {
     path: "/profile",
-    element: <ProfilePage />,
+    element: (
+      <ProfilePage>
+        <ProfileModule />
+      </ProfilePage>
+    ),
   },
 ]);
 

@@ -1,6 +1,6 @@
 import styled from "styled-components";
-import { FacebookIcon, InstagramIcon } from "../../icons/socials";
 import Box from "../utils/Box";
+import { Facebook, Instagram } from "react-feather";
 
 const FooterWrapper = styled.div`
   display: flex;
@@ -15,8 +15,8 @@ export default function Footer() {
   return (
     <Box style={{margin: "5rem 0 .3rem 0"}}>
       <FooterWrapper>
-        <FacebookIcon />
-        <InstagramIcon />
+        <Facebook/>
+        <Instagram/>
       </FooterWrapper>
     </Box>
   );

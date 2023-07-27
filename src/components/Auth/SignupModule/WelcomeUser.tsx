@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { motion } from "framer-motion";
 import { SmallHeadline } from "../../../theme/text";
+import { useEffect } from "react";
 
 const WelcomeWrapper = styled.div`
   display: flex;
@@ -19,9 +20,11 @@ const StyledSmallHeadline = styled(SmallHeadline)`
 export default function WelcomeUser({ first }: { first: string }) {
   const navigate = useNavigate();
 
-  setTimeout(function () {
-    navigate("/shop/service");
-  }, 4000);
+  useEffect(() => {
+    setTimeout(function () {
+      navigate("/shop/service");
+    }, 3000);
+  });
 
   return (
     <WelcomeWrapper>

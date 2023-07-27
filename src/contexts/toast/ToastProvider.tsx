@@ -2,30 +2,36 @@ import { ReactNode, useReducer } from "react";
 import ToastContext from "./toast-context";
 
 const initalToastState = {
-  connectedToast: false,
-  firstName: "",
+  isOpen: false,
+  text: {
+    title: "",
+    text: "",
+  },
 };
 
 type ActionType = {
   type: string;
-  payload?: string | boolean;
+  payload?: {
+    title: string;
+    text: string;
+  };
 };
 
 function toastReducer(prevState: typeof initalToastState, action: ActionType) {
   switch (action.type) {
-    case "CONNECTED_GREETING":
+    case "SHOW_TOAST":
       return {
         ...prevState,
-        connectedToast: true,
-        firstName: action.payload! as string,
+        isOpen: true,
+        text: action.payload!,
+      };
+    case "DISMISS_TOAST":
+      return {
+        ...prevState,
+        isOpen: false,
       };
     default:
       return prevState;
-    case "DISMISS_CONNECTED_GREETING":
-      return {
-        ...prevState,
-        connectedToast: false,
-      };
   }
 }
 
@@ -36,14 +42,14 @@ export default function ToastProvider({ children }: { children: ReactNode }) {
   );
 
   const toastContext = {
-    connectedToast: toastState.connectedToast,
-    firstName: toastState.firstName,
-    showConnectedToast(firstName: string) {
-      dispatchToastState({ type: "CONNECTED_GREETING", payload: firstName });
+    isOpen: toastState.isOpen,
+    text: toastState.text,
+    showToast(text: { title: string; text: string }) {
+      dispatchToastState({ type: "SHOW_TOAST", payload: text });
     },
-    dismissConnectedToast() {
+    dismissToast() {
       dispatchToastState({
-        type: "DISMISS_CONNECTED_GREETING",
+        type: "DISMISS_TOAST",
       });
     },
   };

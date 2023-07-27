@@ -13,10 +13,10 @@ export default function ShopPage({ children }: { children: ReactNode }) {
     <>
       <ShopNavbar />
       <Toast
-        open={toastCtx.connectedToast}
-        setOpen={() => toastCtx.dismissConnectedToast()}
-        title="Connecté"
-        description={`Bonjour ${toastCtx.firstName}`}
+        open={toastCtx.isOpen}
+        setOpen={() => toastCtx.dismissToast()}
+        title={toastCtx.text.title}
+        description={toastCtx.text.text}
       />
       {children}
       <Footer />

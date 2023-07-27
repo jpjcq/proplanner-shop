@@ -8,6 +8,7 @@ import { auth } from "../../firebase";
 import { ShopButtonPrimary } from "../Button";
 import { MediumHeader, SmallSubHeader } from "../../theme/text";
 import UserContext from "../../contexts/user/user-context";
+import ToastContext from "../../contexts/toast/toast-context";
 
 const Overlay = styled(motion.div)`
   position: fixed;
@@ -78,12 +79,18 @@ interface MenuProps {
 
 export default function Menu({ isMenuOpen, setIsMenuOpen }: MenuProps) {
   const userCtx = useContext(UserContext);
+  const toastCtx = useContext(ToastContext);
 
   function handleDisconnectButton() {
     void (async function () {
       await signOut(auth);
       userCtx.setUser({
         isConnected: false,
+      });
+      setIsMenuOpen(false);
+      toastCtx.showToast({
+        title: "Déconnecté",
+        text: "Vous êtes déconnecté",
       });
     })();
   }

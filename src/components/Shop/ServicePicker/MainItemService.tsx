@@ -22,9 +22,9 @@ export default function MainItem({ service }: { service: Service }) {
     open: {
       maxHeight: "1500px",
       height: "inherit",
-      transition: { duration: 0.5 },
+      transition: { duration: 1 },
     },
-    closed: { height: "0", maxHeight: "0", transition: { duration: 0.3 } },
+    closed: { height: "0", maxHeight: "0", transition: { duration: 0.5 } },
   };
 
   return (

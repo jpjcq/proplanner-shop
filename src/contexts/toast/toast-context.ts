@@ -1,12 +1,15 @@
 import { createContext } from "react";
 
 const context = {
-  connectedToast: false,
-  firstName: "",
+  isOpen: false,
+  text: {
+    title: "",
+    text: "",
+  },
   // eslint-disable-next-line @typescript-eslint/no-empty-function, @typescript-eslint/no-unused-vars
-  showConnectedToast(_firstName: string) {},
+  showToast(_text: { title: string; text: string }) {},
   // eslint-disable-next-line @typescript-eslint/no-empty-function, @typescript-eslint/no-unused-vars
-  dismissConnectedToast() {},
+  dismissToast() {},
 };
 
 const ToastContext = createContext(context);

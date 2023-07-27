@@ -1,17 +1,22 @@
 import { useState, useContext } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link as ReactRouterLink, useNavigate } from "react-router-dom";
 import styled, { useTheme } from "styled-components";
 import CartContext from "../../../contexts/cart/cart-context";
 import {
   User as UserIcon,
   ShoppingCart,
   UserCheck as UserCheckIcon,
+  ChevronLeft,
 } from "react-feather";
 import TextLogo from "./TextLogo";
 import { QuantityIcon } from "../CartModal/QuantityIcon";
 import { CartModal } from "../CartModal";
 import Menu from "../../Menu";
 import UserContext from "../../../contexts/user/user-context";
+
+const Link = styled(ReactRouterLink)`
+  color: ${({ theme }) => theme.textPrimary};
+`;
 
 const Header = styled.header`
   position: fixed;
@@ -22,13 +27,6 @@ const Header = styled.header`
 
 const Nav = styled.nav`
   width: 100%;
-  margin: 15px 0;
-`;
-
-const WelcomeNav = styled.nav`
-  width: 100%;
-  display: flex;
-  justify-content: center;
   margin: 15px 0;
 `;
 
@@ -47,9 +45,17 @@ const Li = styled.li`
 export function ShopWelcomeNavbar() {
   return (
     <Header>
-      <WelcomeNav>
-        <TextLogo />
-      </WelcomeNav>
+      <Nav>
+        <Ul>
+          <Li>
+            <Link to="/shop">
+              <ChevronLeft />
+            </Link>
+          </Li>
+          <TextLogo />
+          <Li></Li>
+        </Ul>
+      </Nav>
     </Header>
   );
 }
@@ -81,13 +87,13 @@ export function ShopNavbar() {
       <Header>
         <Nav>
           <Ul>
-            <li>
+            <Li>
               {userCtx.isConnected ? (
                 <UserCheckIcon onClick={() => setIsMenuOpen(true)} />
               ) : (
                 <UserIcon onClick={() => setIsMenuOpen(true)} />
               )}
-            </li>
+            </Li>
             <TextLogo />
             <Li>
               <CartModal
@@ -109,7 +115,6 @@ export function ShopNavbar() {
 }
 
 export function ProfileNavbar() {
-  const userCtx = useContext(UserContext);
   const cartCtx = useContext(CartContext);
   const theme = useTheme();
   const navigate = useNavigate();
@@ -141,13 +146,11 @@ export function ProfileNavbar() {
       >
         <Nav>
           <Ul>
-            <li>
-              {userCtx.isConnected ? (
-                <UserCheckIcon onClick={() => setIsMenuOpen(true)} />
-              ) : (
-                <UserIcon onClick={() => setIsMenuOpen(true)} />
-              )}
-            </li>
+            <Li>
+              <Link to="/shop">
+                <ChevronLeft />
+              </Link>
+            </Li>
             <TextLogo />
             <Li>
               <CartModal

@@ -21,7 +21,7 @@ interface EmailLoginProps {
   showEmailPasswordInvalid: boolean;
 }
 
-export default function EmailLogin({
+export default function EmailLoginForm({
   email,
   setEmail,
   setPassword,

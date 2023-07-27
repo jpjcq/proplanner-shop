@@ -14,6 +14,7 @@ export default function useSetIsConnected(): boolean {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if ((user && isConnected) || (!user && !isConnected)) return;
       if (user && !isConnected) {
         void (async function () {
           try {

@@ -1,7 +1,6 @@
-import React, { FormEvent, useContext, useState } from "react";
+import React, { FormEvent, useState } from "react";
 import styled from "styled-components";
 import { doc, setDoc } from "firebase/firestore";
-import UserContext from "../../../contexts/user/user-context";
 import {
   AuthError,
   User,
@@ -56,7 +55,6 @@ export default function NameForm({
   setShowWelcomeUser,
   setShowFatalError,
 }: NameFormProps) {
-  const userCtx = useContext(UserContext);
   const [showWait, setShowWait] = useState(false);
 
   function handleNameFormSubmit(e: FormEvent) {
@@ -78,11 +76,6 @@ export default function NameForm({
           });
         if (user) await updateEmail(user, email);
         if (user) await updatePassword(user, password);
-        // userCtx.setUser({
-        //   isConnected: true,
-        //   displayName: user?.displayName ? user.displayName : undefined,
-        // });
-
         setShowNameForm(false);
         setShowWelcomeUser(true);
       } catch (e) {

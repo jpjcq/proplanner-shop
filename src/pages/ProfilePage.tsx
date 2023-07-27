@@ -1,21 +1,15 @@
+import { ReactNode } from "react";
 import { ProfileNavbar } from "../components/Shop/Navbar";
-import ProfileModule from "../components/ProfileModule";
 import useSetIsConnected from "../hooks/useSetIsConnected";
 import { Navigate } from "react-router-dom";
 
-export default function ProfilePage() {
+export default function ProfilePage({ children }: { children: ReactNode }) {
   const isConnected = useSetIsConnected();
 
   return (
     <>
-      {isConnected ? (
-        <>
-          <ProfileNavbar />
-          <ProfileModule />
-        </>
-      ) : (
-        <Navigate to="/shop/service" />
-      )}
+      <ProfileNavbar />
+      {isConnected ? children : <Navigate to="/shop/service" />}
     </>
   );
 }

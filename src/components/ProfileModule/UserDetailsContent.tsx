@@ -16,18 +16,16 @@ import { FormInput, PhoneInput } from "../Input";
 import { MediumHeader } from "../../theme/text";
 import * as Form from "@radix-ui/react-form";
 import {
-  AuthError,
   PhoneAuthProvider,
   RecaptchaVerifier,
   User,
   onAuthStateChanged,
   updateEmail,
-  updatePhoneNumber,
 } from "firebase/auth";
 import { auth, db } from "../../firebase";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import SmsCode from "../Auth/SmsCode";
-import { ValidBox } from "../Validation";
+import { ErrorBox, ValidBox } from "../Validation";
 
 interface ProfileContentProps {
   userState: User;
@@ -44,7 +42,7 @@ interface ProfileContentProps {
   setFirst: Dispatch<SetStateAction<string>>;
 }
 
-export default function ProfileContent({
+export default function UserDetailsContent({
   userState,
   docPhone,
   phone,
@@ -59,19 +57,20 @@ export default function ProfileContent({
   setFirst,
 }: ProfileContentProps) {
   // Phone verif
+  const [code, setCode] = useState("");
+  // const [verifierState, setVerifierState] = useState<RecaptchaVerifier>();
   const [verificationIdState, setVerificationIdState] = useState("");
   const [showCodeInput, setShowCodeInput] = useState(false);
-  const [code, setCode] = useState("");
-  const [showCodeSent, setShowCodeSent] = useState(false);
-  const [showWrongCode, setShowWrongCode] = useState(false);
-  const [codeErrorTrigger, setCodeErrorTrigger] = useState(false);
-  const [codeErrorCounter, setCodeErrorCounter] = useState(0);
+  const [resendCode, setResendCode] = useState(false);
 
   // Validation box
   const [showModifOk, setShowModifOk] = useState(false);
+  const [showWait, setShowWait] = useState(false);
+  const [showCodeResent, setShowCodeResent] = useState(false);
+  const [showInvalidEmail, setShowInvalidEmail] = useState(false);
 
-  function handleFormSubmit(e: FormEvent) {
-    e.preventDefault();
+  function handleFormSubmit(e?: FormEvent) {
+    e?.preventDefault();
     if (docPhone === phone) {
       if (userState) {
         void (async function () {
@@ -86,23 +85,26 @@ export default function ProfileContent({
         })();
         setShowModifOk(true);
       }
-    } else {
+    }
+    if (docPhone != phone) {
+      window.recaptchaVerifier = new RecaptchaVerifier(
+        auth,
+        "profile-update-button",
+        {
+          size: "invisible",
+        }
+      );
       void (async function () {
         try {
-          const verifier = new RecaptchaVerifier(
-            auth,
-            "profile-update-button",
-            {
-              size: "invisible",
-            }
-          );
           const provider = new PhoneAuthProvider(auth);
-          const verificationId = await provider.verifyPhoneNumber(
-            phone,
-            verifier
-          );
-          setVerificationIdState(verificationId);
-          setShowCodeInput(true);
+          if (window.recaptchaVerifier) {
+            const verificationId = await provider.verifyPhoneNumber(
+              phone,
+              window.recaptchaVerifier
+            );
+            setVerificationIdState(verificationId);
+            setShowCodeInput(true);
+          }
         } catch (e) {
           console.log(e);
         }
@@ -110,89 +112,78 @@ export default function ProfileContent({
     }
   }
 
-  // After code was typed
-  useEffect(() => {
-    if (code.length === 6 && showCodeInput && !codeErrorTrigger) {
-      setShowCodeSent(true);
-      setShowWrongCode(false);
-      void (async function () {
-        try {
-          if (verificationIdState) {
-            const phoneCredential = PhoneAuthProvider.credential(
-              verificationIdState,
-              code
-            );
-            if (userState) {
-              await updatePhoneNumber(userState, phoneCredential);
-              const userDocRef = doc(db, "users", userState.uid);
-              await setDoc(userDocRef, {
-                phone,
-                email,
-                last,
-                first,
-              });
-              setShowModifOk(true);
-            }
-          }
-        } catch (e) {
-          setCodeErrorTrigger(true);
-          console.log((e as AuthError).code);
-          if ((e as AuthError).code === "auth/invalid-verification-code") {
-            setShowCodeSent(false);
-            setShowWrongCode(true);
-          }
-
-          setCodeErrorCounter((code) => code + 1);
-          if (codeErrorCounter === 2) {
-            setShowCodeInput(false);
-            setCodeErrorCounter(0);
-            return;
-          }
-        }
-      })();
-    }
-  }, [
-    code,
-    codeErrorCounter,
-    showCodeInput,
-    codeErrorTrigger,
-    phone,
-    email,
-    last,
-    first,
-    userState,
-    verificationIdState,
-  ]);
-
   // Get user doc from firestore
   useEffect(() => {
+    let localUser: User;
     onAuthStateChanged(auth, (user) => {
       if (user) {
-        void (async function () {
-          const docRef = doc(db, "users", user.uid);
-          const docSnap = await getDoc(docRef);
-          if (docSnap.exists()) {
-            setUserState(user);
-            setDocPhone(docSnap.data().phone as string);
-            setPhone(docSnap.data().phone as string);
-            setEmail(docSnap.data().email as string);
-            setLast(docSnap.data().last as string);
-            setFirst(docSnap.data().first as string);
-          }
-        })();
+        setUserState(user);
+        localUser = user;
       }
+      void (async function () {
+        const docRef = doc(db, "users", localUser.uid);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          setDocPhone(docSnap.data().phone as string);
+          setPhone(docSnap.data().phone as string);
+          setEmail(docSnap.data().email as string);
+          setLast(docSnap.data().last as string);
+          setFirst(docSnap.data().first as string);
+        }
+      })();
     });
   }, [setUserState, setDocPhone, setPhone, setEmail, setLast, setFirst]);
 
+  // Resend sms code button
+  function handleResendCode() {
+    void (function () {
+      setShowWait(true);
+      window.recaptchaVerifier?.clear();
+      window.recaptchaVerifier = null;
+      setShowCodeInput(false);
+      setResendCode(true);
+    })();
+  }
+
+  /* Resend code in an effect to let "profile-update-button" 
+  render before recatcha is built */
+  useEffect(() => {
+    if (resendCode) {
+      window.recaptchaVerifier = new RecaptchaVerifier(
+        auth,
+        "profile-update-button",
+        {
+          size: "invisible",
+        }
+      );
+      void (async function () {
+        try {
+          const provider = new PhoneAuthProvider(auth);
+          if (window.recaptchaVerifier) {
+            const verificationId = await provider.verifyPhoneNumber(
+              phone,
+              window.recaptchaVerifier
+            );
+            setVerificationIdState(verificationId);
+            setResendCode(false);
+            setShowWait(false);
+            setShowCodeInput(true);
+          }
+        } catch (e) {
+          console.log(e);
+        }
+      })();
+    }
+  }, [resendCode, phone]);
+
+  // Show code resent in sms input
+  useEffect(() => {
+    if (showWait) setShowCodeResent(true);
+  }, [showWait]);
+
   return (
     <>
-      {showCodeInput ? (
-        <SmsCode
-          setCode={setCode}
-          showCodeSent={showCodeSent}
-          showWrongCode={showWrongCode}
-        />
-      ) : (
+      {!showCodeInput && (
         <>
           <MediumHeader fontWeight={700} style={{ margin: "70px 0 40px 0" }}>
             Mes coordonnées
@@ -256,6 +247,7 @@ export default function ProfileContent({
               </Form.Control>
             </StyledFormField>
             {showModifOk && <ValidBox>Informations mises à jour</ValidBox>}
+            {showInvalidEmail && <ErrorBox>Email invalide</ErrorBox>}
             <StyledFormButton
               style={{ padding: "13px 40px", marginTop: "40px" }}
               buttonId="profile-update-button"
@@ -264,6 +256,24 @@ export default function ProfileContent({
             </StyledFormButton>
           </StyledFormRoot>
         </>
+      )}
+      {showCodeInput && (
+        <SmsCode
+          origin="update"
+          code={code}
+          setCode={setCode}
+          verificationId={verificationIdState}
+          showCodeInput={showCodeInput}
+          user={userState}
+          setShowCodeInput={setShowCodeInput}
+          handleResendCode={handleResendCode}
+          setShowModifOk={setShowModifOk}
+          userDetails={{ phone, email, last, first }}
+          showWait={showWait}
+          showCodeResent={showCodeResent}
+          setShowCodeResent={setShowCodeResent}
+          setShowInvalidEmail={setShowInvalidEmail}
+        />
       )}
     </>
   );

@@ -1,19 +1,18 @@
-import { FormEvent, useState, useEffect, useContext } from "react";
+import { FormEvent, useState, useEffect, useContext, useCallback } from "react";
+import { useTheme } from "styled-components";
 import { auth, db } from "../../../firebase";
 import {
   AuthError,
   ConfirmationResult,
   RecaptchaVerifier,
-  onAuthStateChanged,
   signInWithEmailAndPassword,
   signInWithPhoneNumber,
   signOut,
 } from "firebase/auth";
 import { MediumHeader, SmallSubHeader } from "../../../theme/text";
-import EmailLogin from "./EmailLogin";
-import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
-import { useTheme } from "styled-components";
-import PhoneLogin from "./PhoneLogin";
+import EmailLoginForm from "./EmailLoginForm";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import PhoneLoginForm from "./PhoneLoginForm";
 import {
   StyledTabContent,
   StyledTabList,
@@ -38,26 +37,97 @@ export default function LoginModule() {
   const [password, setPassword] = useState("");
   const [code, setCode] = useState("");
 
-  // Phone Verification
-  const [confirmationResultState, setConfirmationResultState] =
-    useState<ConfirmationResult>();
-  const [codeErrorCounter, setCodeErrorCounter] = useState(0);
-  const [codeErrorTrigger, setCodeErrorTrigger] = useState(false);
-
   // Layout
   const [activeTab, setActiveTab] = useState<"email" | "phone">("email");
   const [showCodeInput, setShowCodeInput] = useState(false);
-  const [isConnected, setIsConnected] = useState(false);
+
+  // Phone verif. logic
+  const [verifierState, setVerifierState] = useState<RecaptchaVerifier>();
+  const [confirmationResultState, setConfirmationResultState] =
+    useState<ConfirmationResult>();
 
   // Validation boxes
   const [showEmailPasswordInvalid, setShowEmailPasswordInvalid] =
     useState(false);
   const [showPhoneInvalid, setShowPhoneInvalid] = useState(false);
-  const [showCodeSent, setShowCodeSent] = useState(false);
-  const [showWrongCode, setShowWrongCode] = useState(false);
   const [showInexistingAccount, setShowInexistingAccount] = useState(false);
-  const [showPhoneConnecting, setShowPhoneConnecting] = useState(false);
   const [showPhoneExists, setShowPhoneExists] = useState(false);
+  const [showTooManyRequests, setShowTooManyRequests] = useState(false);
+  const [showWait, setShowWait] = useState(false);
+  const [showCodeResent, setShowCodeResent] = useState(false);
+
+  // Login form submit
+  const handleFormSubmit = useCallback(
+    (e?: FormEvent) => {
+      e?.preventDefault();
+      if (activeTab === "email") {
+        void (async function () {
+          try {
+            const credentials = await signInWithEmailAndPassword(
+              auth,
+              email,
+              password
+            );
+            const userDocRef = doc(db, "users", credentials.user.uid);
+            const docSnap = await getDoc(userDocRef);
+            if (docSnap.exists()) {
+              userCtx.setUser({
+                isConnected: true,
+                displayName: credentials.user.displayName
+                  ? credentials.user.displayName
+                  : undefined,
+              });
+            }
+            navigate("/profile?tab=rendez-vous");
+            if (docSnap.exists()) {
+              toastCtx.showToast({
+                title: "Connecté",
+                text: `Bonjour ${docSnap.data().first as string}`,
+              });
+            }
+          } catch (e) {
+            console.log(e);
+            if (
+              (e as AuthError).code === "auth/wrong-password" ||
+              (e as AuthError).code === "auth/user-not-found" ||
+              (e as AuthError).code === "auth/invalid-email"
+            ) {
+              setShowEmailPasswordInvalid(true);
+            }
+          }
+        })();
+      }
+      if (activeTab === "phone") {
+        setShowTooManyRequests(false);
+        if (isValidPhoneNumber(phone)) {
+          void (async function () {
+            try {
+              const verifier = new RecaptchaVerifier(auth, "login-button", {
+                size: "invisible",
+              });
+              const confirmationResult = await signInWithPhoneNumber(
+                auth,
+                phone,
+                verifier
+              );
+              setVerifierState(verifier);
+              setConfirmationResultState(confirmationResult);
+              setShowCodeInput(true);
+              setShowWait(false);
+            } catch (e) {
+              console.log(e);
+              if ((e as AuthError).code === "auth/too-many-requests") {
+                setShowTooManyRequests(true);
+              }
+            }
+          })();
+        } else {
+          setShowPhoneInvalid(true);
+        }
+      }
+    },
+    [activeTab, phone, email, navigate, password, userCtx, toastCtx]
+  );
 
   // Automatic tab
   const location = useLocation();
@@ -66,176 +136,36 @@ export default function LoginModule() {
     if (params.get("tab")) {
       setActiveTab(params.get("tab") as "email" | "phone");
     }
-    if (params.get("email")) {
-      setEmail(params.get("email") as string);
-    }
-  }, [setActiveTab, location.search]);
+  }, [setActiveTab, location.search, handleFormSubmit]);
 
-  function handleFormSubmit(e: FormEvent) {
-    e.preventDefault();
-    if (activeTab === "email") {
-      void (async function () {
-        try {
-          const credentials = await signInWithEmailAndPassword(
-            auth,
-            email,
-            password
-          );
-          const userDocRef = doc(db, "users", credentials.user.uid);
-          const docSnap = await getDoc(userDocRef);
-          if (docSnap.exists()) {
-            userCtx.setUser({
-              isConnected: true,
-              displayName: credentials.user.displayName
-                ? credentials.user.displayName
-                : undefined,
-            });
-          }
-          navigate("/shop/service");
-          if (docSnap.exists()) {
-            toastCtx.showConnectedToast(docSnap.data().first as string);
-          }
-        } catch (error) {
-          console.error(error);
-          setShowEmailPasswordInvalid(true);
-        }
-      })();
-    }
-    if (activeTab === "phone") {
-      if (isValidPhoneNumber(phone)) {
-        void (async function () {
-          const verifier = new RecaptchaVerifier(auth, "login-button", {
-            size: "invisible",
-          });
-          const confirmationResult = await signInWithPhoneNumber(
-            auth,
-            phone,
-            verifier
-          );
-          setConfirmationResultState(confirmationResult);
-          setShowCodeInput(true);
-        })();
-      } else {
-        setShowPhoneInvalid(true);
+  // Resend sms code button
+  function handleResendCode() {
+    void (async function () {
+      setShowWait(true);
+      verifierState?.clear();
+      setVerifierState(undefined);
+      setShowCodeInput(false);
+      try {
+        await signOut(auth);
+      } catch (e) {
+        console.log("Error while signing out: ", e);
       }
-    }
+      handleFormSubmit();
+    })();
   }
 
-  // After code was typed
+  // Show code resent in sms input
   useEffect(() => {
-    if (code.length === 6 && showCodeInput && !codeErrorTrigger) {
-      setShowCodeSent(true);
-      setShowWrongCode(false);
-      void (async function () {
-        try {
-          if (confirmationResultState) {
-            const userCredential = await confirmationResultState.confirm(code);
-            if (userCredential) {
-              const userDocRef = doc(db, "users", userCredential.user.uid);
-              const docSnap = await getDoc(userDocRef);
-              if (docSnap.exists()) {
-                if (docSnap.data().last && docSnap.data().first) {
-                  setShowInexistingAccount(false);
-                  setShowPhoneConnecting(true);
-                  userCtx.setUser({
-                    isConnected: true,
-                    displayName: userCredential.user.displayName
-                      ? userCredential.user.displayName
-                      : undefined,
-                  });
-                  navigate("/shop/service");
-                  toastCtx.showConnectedToast(docSnap.data().first as string);
-                } else {
-                  setShowInexistingAccount(true);
-                  await signOut(auth);
-                  setShowCodeInput(false);
-                  setActiveTab("phone");
-                }
-              } else {
-                setShowInexistingAccount(true);
-                setShowCodeInput(false);
-                setActiveTab("phone");
-                await signOut(auth);
-              }
-            }
-          }
-        } catch (e) {
-          setCodeErrorTrigger(true);
-          console.log((e as AuthError).code);
-          if ((e as AuthError).code === "auth/invalid-verification-code") {
-            setShowCodeSent(false);
-            setShowWrongCode(true);
-          }
-          if (
-            (e as AuthError).code ===
-            "auth/account-exists-with-different-credential"
-          ) {
-            setShowCodeInput(false);
-            setShowPhoneExists(true);
-            return;
-          }
-          setCodeErrorCounter((code) => code + 1);
-          if (codeErrorCounter === 2) {
-            setShowCodeInput(false);
-            setCodeErrorCounter(0);
-            return;
-          }
-        }
-      })();
-    }
-  }, [
-    code,
-    codeErrorCounter,
-    showCodeInput,
-    codeErrorTrigger,
-    confirmationResultState,
-    navigate,
-    toastCtx,
-    userCtx,
-  ]);
-
-  // Reset code error trigger
-  useEffect(() => {
-    if (code.length < 6 && codeErrorTrigger) {
-      setCodeErrorTrigger(false);
-      setShowWrongCode(false);
-    }
-  }, [code, codeErrorTrigger]);
-
-  // Check if already logged in
-  useEffect(() => {
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-        void (async function () {
-          try {
-            const userDocRef = doc(db, "users", user.uid);
-            const docSnap = await getDoc(userDocRef);
-            if (docSnap.exists()) {
-              setIsConnected(true);
-            }
-          } catch (e) {
-            console.log(e);
-          }
-        })();
-      }
-    });
-  }, []);
+    if (showWait) setShowCodeResent(true);
+  }, [showWait]);
 
   return (
     <>
-      {
-        isConnected && !showInexistingAccount && (
-          <Navigate to="/profile" />
-        ) /* /!\ MODIFIER ET REDIRIGER VERS USER ACCOUNT PAGE /!\ */
-      }
-
-      {/* DEFAULT SCREEN */}
       {!showCodeInput && (
         <>
           <MediumHeader fontWeight={700} style={{ marginBottom: "40px" }}>
             Se connecter
           </MediumHeader>
-
           <StyledTabRoot
             defaultValue="email"
             value={activeTab}
@@ -246,18 +176,18 @@ export default function LoginModule() {
               <StyledTabTrigger value="phone">Tel</StyledTabTrigger>
             </StyledTabList>
             <StyledTabContent value="phone">
-              <PhoneLogin
+              <PhoneLoginForm
                 phone={phone}
                 setPhone={setPhone}
                 showPhoneInvalid={showPhoneInvalid}
                 showPhoneExists={showPhoneExists}
                 showInexistingAccount={showInexistingAccount}
-                showPhoneConnecting={showPhoneConnecting}
                 handleFormSubmit={handleFormSubmit}
+                showTooManyRequests={showTooManyRequests}
               />
             </StyledTabContent>
             <StyledTabContent value="email">
-              <EmailLogin
+              <EmailLoginForm
                 email={email}
                 setEmail={setEmail}
                 setPassword={setPassword}
@@ -274,13 +204,21 @@ export default function LoginModule() {
           </SmallSubHeader>
         </>
       )}
-
-      {/* SMS CODE INPUT SCREEN */}
       {showCodeInput && (
         <SmsCode
+          origin="login"
+          code={code}
           setCode={setCode}
-          showCodeSent={showCodeSent}
-          showWrongCode={showWrongCode}
+          showWait={showWait}
+          showCodeResent={showCodeResent}
+          setShowCodeResent={setShowCodeResent}
+          showCodeInput={showCodeInput}
+          setShowCodeInput={setShowCodeInput}
+          setShowPhoneExists={setShowPhoneExists}
+          setActiveTab={setActiveTab}
+          setShowInexistingAccount={setShowInexistingAccount}
+          confirmationResultState={confirmationResultState}
+          handleResendCode={handleResendCode}
         />
       )}
     </>

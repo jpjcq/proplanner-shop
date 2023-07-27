@@ -1,16 +1,14 @@
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useCallback, useEffect, useState } from "react";
 import { styled } from "styled-components";
 import {
   AuthError,
   RecaptchaVerifier,
   User,
   signInWithPhoneNumber,
-  deleteUser,
   ConfirmationResult,
   signOut,
 } from "firebase/auth";
-import { doc, getDoc } from "firebase/firestore";
-import { auth, db } from "../../../firebase";
+import { auth } from "../../../firebase";
 import { isValidPhoneNumber } from "react-phone-number-input";
 import SmsCode from "../SmsCode";
 import SignupForm from "./SignupForm";
@@ -39,9 +37,9 @@ export default function SignupModule() {
 
   // Phone verification processus
   const [userState, setUserState] = useState<User | null>(null);
+  const [verifierState, setVerifierState] = useState<RecaptchaVerifier>();
   const [confirmationResultState, setConfirmationResultState] =
     useState<ConfirmationResult>();
-  const [codeErrorCounter, setCodeErrorCounter] = useState(0);
   const [codeErrorTrigger, setCodeErrorTrigger] = useState(false);
 
   // Layout
@@ -50,7 +48,6 @@ export default function SignupModule() {
   const [showWelcomeUser, setShowWelcomeUser] = useState(false);
 
   // Error page
-  // const [showPhoneExists, setShowPhoneExists] = useState(false);
   const [showTooManyRequests, setShowTooManyRequests] = useState(false);
   const [showAccountAlreadyExists, setShowAccountAlreadyExists] =
     useState(false);
@@ -58,101 +55,69 @@ export default function SignupModule() {
 
   // Validation boxes
   const [showPhoneInvalid, setShowPhoneInvalid] = useState(false);
-  const [showCodeSent, setShowCodeSent] = useState(false);
-  const [showWrongCode, setShowWrongCode] = useState(false);
+  const [showWait, setShowWait] = useState(false);
+  const [showCodeResent, setShowCodeResent] = useState(false);
 
   // Submit button click
-  function handleFormSubmit(e: FormEvent) {
-    e.preventDefault();
-    if (isValidPhoneNumber(phone)) {
-      void (async function () {
-        try {
-          // Create user with phone number
-          const verifier = new RecaptchaVerifier(auth, "sign-in-button", {
-            size: "invisible",
-          });
-          const confirmationResult = await signInWithPhoneNumber(
-            auth,
-            phone,
-            verifier
-          );
-          setConfirmationResultState(confirmationResult);
-
-          setShowCodeInput(true);
-        } catch (e) {
-          console.error(e);
-          if ((e as AuthError).code === "auth/too-many-requests") {
-            setShowCodeInput(false);
-            setShowTooManyRequests(true);
-          }
-        }
-      })();
-    } else {
-      setShowPhoneInvalid(true);
-    }
-  }
-
-  // After code was typed
-  useEffect(() => {
-    if (code.length === 6 && showCodeInput && !codeErrorTrigger) {
-      setShowCodeSent(true);
-      setShowWrongCode(false);
-      void (async function () {
-        try {
-          if (confirmationResultState) {
-            const userCredential = await confirmationResultState.confirm(code);
-            setUserState(userCredential.user);
-
-            const userRef = doc(db, "users", userCredential.user.uid);
-            const userDocSnapshot = await getDoc(userRef);
-            if (userDocSnapshot.exists()) {
-              if (userDocSnapshot.data().last && userDocSnapshot.data().first) {
-                setShowAccountAlreadyExists(true);
-                setShowCodeInput(false);
-              } else {
-                setShowNameForm(true);
-                setShowCodeInput(false);
-              }
-            } else {
-              setShowNameForm(true);
+  const handleFormSubmit = useCallback(
+    (e?: FormEvent) => {
+      e?.preventDefault();
+      if (isValidPhoneNumber(phone)) {
+        void (async function () {
+          try {
+            const verifier = new RecaptchaVerifier(auth, "sign-in-button", {
+              size: "invisible",
+            });
+            const confirmationResult = await signInWithPhoneNumber(
+              auth,
+              phone,
+              verifier
+            );
+            setConfirmationResultState(confirmationResult);
+            setVerifierState(verifier);
+            setShowCodeInput(true);
+            setShowWait(false);
+          } catch (e) {
+            console.log(e);
+            if ((e as AuthError).code === "auth/too-many-requests") {
               setShowCodeInput(false);
+              setShowTooManyRequests(true);
             }
           }
-        } catch (e) {
-          setCodeErrorTrigger(true);
-          console.log((e as AuthError).code);
-          if ((e as AuthError).code === "auth/invalid-verification-code") {
-            setShowCodeSent(false);
-            setShowWrongCode(true);
-          }
-          setCodeErrorCounter((code) => code + 1);
-          if (codeErrorCounter === 2) {
-            const deletedUser = await deleteUser(userState as User);
-            console.log("User deleted: ", deletedUser);
-            setShowCodeInput(false);
-            setShowWelcomeUser(false);
-            setCodeErrorCounter(0);
-            return;
-          }
-        }
-      })();
-    }
-  }, [
-    code,
-    userState,
-    codeErrorCounter,
-    showCodeInput,
-    codeErrorTrigger,
-    confirmationResultState,
-  ]);
+        })();
+      } else {
+        setShowPhoneInvalid(true);
+      }
+    },
+    [phone]
+  );
 
   // Reset code error trigger
   useEffect(() => {
     if (code.length < 6 && codeErrorTrigger) {
       setCodeErrorTrigger(false);
-      setShowWrongCode(false);
     }
   }, [code, codeErrorTrigger]);
+
+  // Resend code button handler
+  function handleResendCode() {
+    void (async function () {
+      setShowWait(true);
+      setShowCodeInput(false);
+      verifierState?.clear();
+      setVerifierState(undefined);
+      try {
+        await signOut(auth);
+      } catch (e) {
+        console.log("Error while signing out: ", e);
+      }
+      handleFormSubmit();
+    })();
+  }
+
+  useEffect(() => {
+    if (showWait) setShowCodeResent(true);
+  }, [showWait]);
 
   return (
     <>
@@ -163,6 +128,9 @@ export default function SignupModule() {
         !showAccountAlreadyExists &&
         !showFatalError && (
           <SignupForm
+            phone={phone}
+            email={email}
+            password={password}
             setPhone={setPhone}
             setEmail={setEmail}
             setPassword={setPassword}
@@ -173,9 +141,20 @@ export default function SignupModule() {
         )}
       {showCodeInput && (
         <SmsCode
+          origin="signup"
+          code={code}
           setCode={setCode}
-          showCodeSent={showCodeSent}
-          showWrongCode={showWrongCode}
+          showCodeInput={showCodeInput}
+          confirmationResultState={confirmationResultState}
+          setUserState={setUserState}
+          setShowNameForm={setShowNameForm}
+          setShowWelcomeUser={setShowWelcomeUser}
+          setShowCodeInput={setShowCodeInput}
+          setShowAccountAlreadyExists={setShowAccountAlreadyExists}
+          showWait={showWait}
+          setShowCodeResent={setShowCodeResent}
+          showCodeResent={showCodeResent}
+          handleResendCode={handleResendCode}
         />
       )}
       {!showCodeInput && showTooManyRequests && (

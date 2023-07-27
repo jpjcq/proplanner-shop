@@ -23,7 +23,7 @@ const LogoBottom = styled.span`
 
 export default function TextLogo() {
   return (
-    <LogoWrapper>
+    <LogoWrapper >
       <LogoTop>L'ONGLERIE</LogoTop>
       <LogoBottom>DE CHARLOTTE</LogoBottom>
     </LogoWrapper>

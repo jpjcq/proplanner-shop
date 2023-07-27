@@ -16,15 +16,21 @@ import { ErrorBox, WarningBox } from "../../Validation";
 import "./phoneInput.css";
 
 interface SignupFormProps {
-  handleFormSubmit: (e: FormEvent) => void;
+  phone: string;
+  email: string;
+  password: string;
   setPhone: React.Dispatch<React.SetStateAction<string>>;
   setEmail: React.Dispatch<React.SetStateAction<string>>;
   setPassword: React.Dispatch<React.SetStateAction<string>>;
+  handleFormSubmit: (e: FormEvent) => void;
   showPhoneInvalid: boolean;
   showAccountAlreadyExists: boolean;
 }
 
 export default function SignupForm({
+  phone,
+  email,
+  password,
   handleFormSubmit,
   setPhone,
   setEmail,
@@ -41,7 +47,7 @@ export default function SignupForm({
       <StyledFormRoot onSubmit={handleFormSubmit}>
         <StyledFormField name="phone">
           <StyledFormLabel>Téléphone</StyledFormLabel>
-          <PhoneInput setPhone={setPhone} />
+          <PhoneInput value={phone} setPhone={setPhone} />
         </StyledFormField>
         <StyledFormField name="email">
           <div
@@ -61,6 +67,7 @@ export default function SignupForm({
             <FormInput
               type="email"
               required
+              value={email}
               onChange={(e) => {
                 setEmail(e.target.value);
               }}
@@ -82,6 +89,7 @@ export default function SignupForm({
           </div>
           <Form.Control asChild>
             <FormInput
+              value={password}
               type="password"
               required
               minLength={6}
