@@ -1,5 +1,6 @@
 import { ReactNode, useReducer } from "react";
 import ToastContext from "./toast-context";
+import { Provider } from "@radix-ui/react-toast";
 
 const initalToastState = {
   isOpen: false,
@@ -56,7 +57,7 @@ export default function ToastProvider({ children }: { children: ReactNode }) {
 
   return (
     <ToastContext.Provider value={toastContext}>
-      {children}
+      <Provider duration={2000}>{children}</Provider>
     </ToastContext.Provider>
   );
 }

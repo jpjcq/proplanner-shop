@@ -1,5 +1,4 @@
-import { useContext, useEffect } from "react";
-import UserContext from "../contexts/user/user-context";
+import { useEffect } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth, db } from "../firebase";
 import { doc, getDoc } from "firebase/firestore";
@@ -10,18 +9,20 @@ import { doc, getDoc } from "firebase/firestore";
  * @returns {boolean} isConnected.
  */
 export default function useSetIsConnected(): boolean {
-  const { isConnected, setUser } = useContext(UserContext);
+  let isConnected = false;
+  if (sessionStorage.getItem("isConnected") === "true") {
+    isConnected = true;
+  }
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if ((user && isConnected) || (!user && !isConnected)) return;
       if (user && !isConnected) {
         void (async function () {
           try {
             const userRef = doc(db, "users", user.uid);
             const docSnap = await getDoc(userRef);
             if (docSnap.exists()) {
-              setUser({ isConnected: true });
+              sessionStorage.setItem("isConnected", "true");
             }
           } catch (e) {
             console.log(e);
@@ -29,11 +30,11 @@ export default function useSetIsConnected(): boolean {
         })();
       }
       if (!user && isConnected) {
-        setUser({ isConnected: false });
+        sessionStorage.setItem("isConnected", "false");
       }
     });
     return () => unsubscribe();
-  }, [setUser, isConnected]);
+  }, [isConnected]);
 
   return isConnected;
 }

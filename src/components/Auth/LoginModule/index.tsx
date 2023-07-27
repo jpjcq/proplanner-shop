@@ -23,13 +23,11 @@ import SmsCode from "../SmsCode";
 import { isValidPhoneNumber } from "react-phone-number-input";
 import ToastContext from "../../../contexts/toast/toast-context";
 import { doc, getDoc } from "firebase/firestore";
-import UserContext from "../../../contexts/user/user-context";
 
 export default function LoginModule() {
   const theme = useTheme();
   const navigate = useNavigate();
   const toastCtx = useContext(ToastContext);
-  const userCtx = useContext(UserContext);
 
   // User creds
   const [phone, setPhone] = useState("");
@@ -71,12 +69,7 @@ export default function LoginModule() {
             const userDocRef = doc(db, "users", credentials.user.uid);
             const docSnap = await getDoc(userDocRef);
             if (docSnap.exists()) {
-              userCtx.setUser({
-                isConnected: true,
-                displayName: credentials.user.displayName
-                  ? credentials.user.displayName
-                  : undefined,
-              });
+              sessionStorage.setItem("isConnected", "true");
             }
             navigate("/profile?tab=rendez-vous");
             if (docSnap.exists()) {
@@ -126,7 +119,7 @@ export default function LoginModule() {
         }
       }
     },
-    [activeTab, phone, email, navigate, password, userCtx, toastCtx]
+    [activeTab, phone, email, navigate, password, toastCtx]
   );
 
   // Automatic tab

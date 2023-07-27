@@ -7,8 +7,9 @@ import { signOut } from "firebase/auth";
 import { auth } from "../../firebase";
 import { ShopButtonPrimary } from "../Button";
 import { MediumHeader, SmallSubHeader } from "../../theme/text";
-import UserContext from "../../contexts/user/user-context";
+// import UserContext from "../../contexts/user/user-context";
 import ToastContext from "../../contexts/toast/toast-context";
+import useSetIsConnected from "../../hooks/useSetIsConnected";
 
 const Overlay = styled(motion.div)`
   position: fixed;
@@ -78,15 +79,16 @@ interface MenuProps {
 }
 
 export default function Menu({ isMenuOpen, setIsMenuOpen }: MenuProps) {
-  const userCtx = useContext(UserContext);
+  const isConnected = useSetIsConnected();
   const toastCtx = useContext(ToastContext);
 
   function handleDisconnectButton() {
     void (async function () {
       await signOut(auth);
-      userCtx.setUser({
-        isConnected: false,
-      });
+      // userCtx.setUser({
+      //   isConnected: false,
+      // });
+      sessionStorage.setItem("isConnected", "false");
       setIsMenuOpen(false);
       toastCtx.showToast({
         title: "Déconnecté",
@@ -126,14 +128,14 @@ export default function Menu({ isMenuOpen, setIsMenuOpen }: MenuProps) {
           <Cross2Icon height={20} width={20} />
         </button>
 
-        {!userCtx.isConnected && (
+        {!isConnected && (
           <>
             <ConnectButton to="/auth/login">Se connecter</ConnectButton>
             <SignUpButton to="/auth/signup">S'inscrire</SignUpButton>
           </>
         )}
 
-        {userCtx.isConnected && (
+        {isConnected && (
           <>
             <Link
               to="/profile?tab=rendez-vous"

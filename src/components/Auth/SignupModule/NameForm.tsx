@@ -62,7 +62,6 @@ export default function NameForm({
     void (async function () {
       try {
         setShowWait(true);
-        // Addind user in "users" db
         const userRef = doc(db, "users", user?.uid as string);
         await setDoc(userRef, {
           phone: user?.phoneNumber as string,
@@ -76,6 +75,7 @@ export default function NameForm({
           });
         if (user) await updateEmail(user, email);
         if (user) await updatePassword(user, password);
+        sessionStorage.setItem("isConnected", "true");
         setShowNameForm(false);
         setShowWelcomeUser(true);
       } catch (e) {

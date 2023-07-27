@@ -12,7 +12,7 @@ import TextLogo from "./TextLogo";
 import { QuantityIcon } from "../CartModal/QuantityIcon";
 import { CartModal } from "../CartModal";
 import Menu from "../../Menu";
-import UserContext from "../../../contexts/user/user-context";
+import useSetIsConnected from "../../../hooks/useSetIsConnected";
 
 const Link = styled(ReactRouterLink)`
   color: ${({ theme }) => theme.textPrimary};
@@ -61,7 +61,7 @@ export function ShopWelcomeNavbar() {
 }
 
 export function ShopNavbar() {
-  const userCtx = useContext(UserContext);
+  const isConnected = useSetIsConnected();
   const cartCtx = useContext(CartContext);
   const navigate = useNavigate();
   const [chooseServiceFirst, setChooseServiceFirst] = useState(false);
@@ -88,7 +88,7 @@ export function ShopNavbar() {
         <Nav>
           <Ul>
             <Li>
-              {userCtx.isConnected ? (
+              {isConnected ? (
                 <UserCheckIcon onClick={() => setIsMenuOpen(true)} />
               ) : (
                 <UserIcon onClick={() => setIsMenuOpen(true)} />

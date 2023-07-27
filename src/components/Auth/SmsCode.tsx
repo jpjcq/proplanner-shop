@@ -19,7 +19,6 @@ import {
   updatePhoneNumber,
 } from "firebase/auth";
 import { auth, db } from "../../firebase";
-import UserContext from "../../contexts/user/user-context";
 import ToastContext from "../../contexts/toast/toast-context";
 import { useNavigate } from "react-router-dom";
 import { doc, getDoc, setDoc } from "firebase/firestore";
@@ -105,7 +104,6 @@ export default function SmsCode({
 }: SmsCodeProps) {
   const navigate = useNavigate();
   // Contexts
-  const userCtx = useContext(UserContext);
   const toastCtx = useContext(ToastContext);
   // Validation boxes
   const [showCodeSent, setShowCodeSent] = useState(false);
@@ -130,12 +128,7 @@ export default function SmsCode({
             if (origin === "login") {
               if (docSnap.exists()) {
                 if (docSnap.data().last && docSnap.data().first) {
-                  userCtx.setUser({
-                    isConnected: true,
-                    displayName: userCredential.user.displayName
-                      ? userCredential.user.displayName
-                      : undefined,
-                  });
+                  sessionStorage.setItem("isConnected", "true");
                   navigate("/profile?tab=rendez-vous");
                   toastCtx.showToast({
                     title: "Connecté",
@@ -247,7 +240,6 @@ export default function SmsCode({
     confirmationResultState,
     navigate,
     toastCtx,
-    userCtx,
     verificationId,
     setActiveTab,
     setShowCodeInput,
