@@ -51,7 +51,7 @@ export default function SignupModule() {
   const [showTooManyRequests, setShowTooManyRequests] = useState(false);
   const [showAccountAlreadyExists, setShowAccountAlreadyExists] =
     useState(false);
-  const [showFatalError, setShowFatalError] = useState(false);
+  const [showFatalError, setShowFatalError] = useState(false); // a voir, autant transformer en error page
 
   // Validation boxes
   const [showPhoneInvalid, setShowPhoneInvalid] = useState(false);

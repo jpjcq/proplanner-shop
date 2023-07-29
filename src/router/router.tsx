@@ -10,6 +10,7 @@ import SignupModule from "../components/Auth/SignupModule";
 import LoginModule from "../components/Auth/LoginModule";
 import ResetPasswordPage from "../pages/ResetPasswordPage";
 import ProfileModule from "../components/ProfileModule";
+import ValidationBoxesProvider from "../contexts/validationBoxes/ValidationBoxesProvider";
 
 const router = createBrowserRouter([
   {
@@ -41,29 +42,39 @@ const router = createBrowserRouter([
   {
     path: "/auth/login",
     element: (
-      <AuthPage>
-        <LoginModule />
-      </AuthPage>
+      <ValidationBoxesProvider>
+        <AuthPage>
+          <LoginModule />
+        </AuthPage>
+      </ValidationBoxesProvider>
     ),
   },
   {
     path: "/reset-password",
-    element: <ResetPasswordPage />,
+    element: (
+      <ValidationBoxesProvider>
+        <ResetPasswordPage />
+      </ValidationBoxesProvider>
+    ),
   },
   {
     path: "/auth/signup",
     element: (
-      <AuthPage>
-        <SignupModule />
-      </AuthPage>
+      <ValidationBoxesProvider>
+        <AuthPage>
+          <SignupModule />
+        </AuthPage>
+      </ValidationBoxesProvider>
     ),
   },
   {
     path: "/profile",
     element: (
-      <ProfilePage>
-        <ProfileModule />
-      </ProfilePage>
+      <ValidationBoxesProvider>
+        <ProfilePage>
+          <ProfileModule />
+        </ProfilePage>
+      </ValidationBoxesProvider>
     ),
   },
 ]);
