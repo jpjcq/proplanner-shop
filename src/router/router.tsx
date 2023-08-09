@@ -11,6 +11,7 @@ import LoginModule from "../components/Auth/LoginModule";
 import ResetPasswordPage from "../pages/ResetPasswordPage";
 import ProfileModule from "../components/ProfileModule";
 import ValidationBoxesProvider from "../contexts/validationBoxes/ValidationBoxesProvider";
+import SummaryAndPayment from "../components/Shop/SummaryAndPayment";
 
 const router = createBrowserRouter([
   {
@@ -35,6 +36,16 @@ const router = createBrowserRouter([
       <CartProvider>
         <ShopPage>
           <DatePicker />
+        </ShopPage>
+      </CartProvider>
+    ),
+  },
+  {
+    path: "/shop/summary",
+    element: (
+      <CartProvider>
+        <ShopPage>
+          <SummaryAndPayment />
         </ShopPage>
       </CartProvider>
     ),

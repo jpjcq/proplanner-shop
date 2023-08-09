@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import { Dispatch, SetStateAction, useContext } from "react";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 import { Cross2Icon } from "@radix-ui/react-icons";
@@ -41,7 +41,7 @@ const ConnectButton = styled(Link)`
   font-weight: 600;
   background-color: ${({ theme }) => theme.accent};
   padding: 15px 23px;
-  border-radius: 5px;
+  border-radius: 4px;
 `;
 
 const SignUpButton = styled(Link)`
@@ -54,7 +54,7 @@ const SignUpButton = styled(Link)`
   border: 2px solid ${({ theme }) => theme.accent};
   padding: 15px 23px;
   margin-top: 15px;
-  border-radius: 5px;
+  border-radius: 4px;
 `;
 
 const DisconnectButton = styled(ShopButtonPrimary)`
@@ -69,13 +69,13 @@ const DisconnectButton = styled(ShopButtonPrimary)`
 const Separator = styled.div`
   height: 2px;
   width: 50%;
-  border-bottom: 2px solid ${({ theme }) => theme.accent};
+  border-bottom: 2px solid ${({ theme }) => theme.lightBorder};
   margin-bottom: 40px;
 `;
 
 interface MenuProps {
   isMenuOpen: boolean;
-  setIsMenuOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  setIsMenuOpen: Dispatch<SetStateAction<boolean>>;
 }
 
 export default function Menu({ isMenuOpen, setIsMenuOpen }: MenuProps) {
@@ -85,9 +85,6 @@ export default function Menu({ isMenuOpen, setIsMenuOpen }: MenuProps) {
   function handleDisconnectButton() {
     void (async function () {
       await signOut(auth);
-      // userCtx.setUser({
-      //   isConnected: false,
-      // });
       sessionStorage.setItem("isConnected", "false");
       setIsMenuOpen(false);
       toastCtx.showToast({

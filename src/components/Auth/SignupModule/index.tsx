@@ -9,12 +9,12 @@ import {
   signOut,
 } from "firebase/auth";
 import { auth } from "../../../firebase";
-import { isValidPhoneNumber } from "react-phone-number-input";
 import SmsCode from "../SmsCode";
 import SignupForm from "./SignupForm";
 import NameForm from "./NameForm";
 import WelcomeUser from "./WelcomeUser";
 import ErrorModule from "../../Error/Index";
+import { isValidPhoneNumber } from "react-phone-number-input";
 
 const StyledButton = styled.button`
   margin-top: 10px;
@@ -58,11 +58,14 @@ export default function SignupModule() {
   const [showWait, setShowWait] = useState(false);
   const [showCodeResent, setShowCodeResent] = useState(false);
 
+  // Form validity
+  const [isFormValid, setIsFormValid] = useState(false);
+
   // Submit button click
   const handleFormSubmit = useCallback(
     (e?: FormEvent) => {
       e?.preventDefault();
-      if (isValidPhoneNumber(phone)) {
+      if (isFormValid && isValidPhoneNumber(phone)) {
         void (async function () {
           try {
             const verifier = new RecaptchaVerifier(auth, "sign-in-button", {
@@ -89,7 +92,7 @@ export default function SignupModule() {
         setShowPhoneInvalid(true);
       }
     },
-    [phone]
+    [phone, isFormValid]
   );
 
   // Reset code error trigger
@@ -137,6 +140,7 @@ export default function SignupModule() {
             handleFormSubmit={handleFormSubmit}
             showPhoneInvalid={showPhoneInvalid}
             showAccountAlreadyExists={showAccountAlreadyExists}
+            setIsFormValid={setIsFormValid}
           />
         )}
       {showCodeInput && (

@@ -25,7 +25,9 @@ export const StyledFormLabel = styled(Label)`
 `;
 
 export const StyledFormMessage = styled(Message)`
+  color: ${({theme}) => theme.validation.red.regular};
   font-size: 13px;
+  font-weight: 500;
   opacity: 0.8;
 `;
 

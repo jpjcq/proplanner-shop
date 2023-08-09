@@ -1,7 +1,13 @@
-import { FormEvent } from "react";
+import {
+  Dispatch,
+  FormEvent,
+  SetStateAction,
+  useEffect,
+  useState,
+} from "react";
 import { useTheme } from "styled-components";
 import { Link } from "react-router-dom";
-import * as Form from "@radix-ui/react-form";
+import { Control } from "@radix-ui/react-form";
 import { MediumHeader, SmallSubHeader } from "../../../theme/text";
 import {
   StyledFormButton,
@@ -12,19 +18,23 @@ import {
 } from "../../Form";
 import { FormInput } from "../../Input";
 import { PhoneInput } from "../../Input";
-import { ErrorBox, WarningBox } from "../../Validation";
+import { ErrorBox } from "../../Validation";
+import isEmail from "validator/es/lib/isEmail";
+import isStrongPassword from "validator/es/lib/isStrongPassword";
+
 import "./phoneInput.css";
 
 interface SignupFormProps {
   phone: string;
   email: string;
   password: string;
-  setPhone: React.Dispatch<React.SetStateAction<string>>;
-  setEmail: React.Dispatch<React.SetStateAction<string>>;
-  setPassword: React.Dispatch<React.SetStateAction<string>>;
+  setPhone: Dispatch<SetStateAction<string>>;
+  setEmail: Dispatch<SetStateAction<string>>;
+  setPassword: Dispatch<SetStateAction<string>>;
   handleFormSubmit: (e: FormEvent) => void;
   showPhoneInvalid: boolean;
   showAccountAlreadyExists: boolean;
+  setIsFormValid: Dispatch<SetStateAction<boolean>>;
 }
 
 export default function SignupForm({
@@ -37,8 +47,20 @@ export default function SignupForm({
   setPassword,
   showPhoneInvalid,
   showAccountAlreadyExists,
+  setIsFormValid,
 }: SignupFormProps) {
   const theme = useTheme();
+  const [isInvalidEmail, setIsInvalidEmail] = useState(false);
+  const [isInvalidPassword, setIsInvalidPassword] = useState(false);
+  const [isInvalidPhone, setIsInvalidPhone] = useState(false);
+
+  // Check if form is entirely valid
+  useEffect(() => {
+    if (!isInvalidEmail && !isInvalidPassword && !isInvalidPhone) {
+      setIsFormValid(true);
+    }
+  });
+
   return (
     <>
       <MediumHeader fontWeight={700} style={{ marginBottom: "20px" }}>
@@ -47,59 +69,64 @@ export default function SignupForm({
       <StyledFormRoot onSubmit={handleFormSubmit}>
         <StyledFormField name="phone">
           <StyledFormLabel>Téléphone</StyledFormLabel>
-          <PhoneInput value={phone} setPhone={setPhone} />
+          <PhoneInput
+            value={phone}
+            setPhone={setPhone}
+            setIsInvalidPhone={setIsInvalidPhone}
+            $isInvalid={isInvalidPhone}
+          />
+          {(isInvalidPhone || showPhoneInvalid) && (
+            <StyledFormMessage>
+              Veuillez entrer un numéro valide
+            </StyledFormMessage>
+          )}
         </StyledFormField>
         <StyledFormField name="email">
-          <div
-            style={{
-              display: "flex",
-              alignItems: "baseline",
-              justifyContent: "space-between",
-              width: "100%",
-            }}
-          >
-            <StyledFormLabel>Email</StyledFormLabel>
-            <StyledFormMessage match="typeMismatch">
-              Veuillez entrer un email valide
-            </StyledFormMessage>
-          </div>
-          <Form.Control asChild>
+          <StyledFormLabel>Email</StyledFormLabel>
+          <Control asChild>
             <FormInput
               type="email"
               required
               value={email}
+              $invalid={isInvalidEmail}
               onChange={(e) => {
                 setEmail(e.target.value);
+                isEmail(e.target.value)
+                  ? setIsInvalidEmail(false)
+                  : setIsInvalidEmail(true);
               }}
+              autoComplete="email"
             />
-          </Form.Control>
+          </Control>
+          {isInvalidEmail && (
+            <StyledFormMessage>
+              Veuillez entrer un email valide
+            </StyledFormMessage>
+          )}
         </StyledFormField>
         <StyledFormField name="password">
-          <div
-            style={{
-              display: "flex",
-              alignItems: "baseline",
-              justifyContent: "space-between",
-            }}
-          >
-            <StyledFormLabel>Mot de passe</StyledFormLabel>
-            <StyledFormMessage match="tooShort">
-              Min. 6 charactères
-            </StyledFormMessage>
-          </div>
-          <Form.Control asChild>
+          <StyledFormLabel>Mot de passe</StyledFormLabel>
+          <Control asChild>
             <FormInput
               value={password}
               type="password"
               required
-              minLength={6}
-              onChange={(e) => setPassword(e.target.value)}
+              $invalid={isInvalidPassword}
+              onChange={(e) => {
+                setPassword(e.target.value);
+                isStrongPassword(e.target.value)
+                  ? setIsInvalidPassword(false)
+                  : setIsInvalidPassword(true);
+              }}
+              autoComplete="new-password"
             />
-          </Form.Control>
+          </Control>
+          {isInvalidPassword && (
+            <StyledFormMessage>
+              Mot de passe trop faible (min a, A, €)
+            </StyledFormMessage>
+          )}
         </StyledFormField>
-        {showPhoneInvalid && (
-          <WarningBox>Le numéro de téléphone fourni est invalide</WarningBox>
-        )}
         {showAccountAlreadyExists && (
           <ErrorBox>Un compte est déjà associé à ce numéro</ErrorBox>
         )}

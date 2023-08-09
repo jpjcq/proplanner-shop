@@ -16,6 +16,7 @@ import { ShopButtonPrimary } from "../../Button";
 import styled from "styled-components";
 import CartContext from "../../../contexts/cart/cart-context";
 import { Text } from "rebass";
+import { Link } from "react-router-dom";
 
 const Availabilities = styled(ItemDescription)`
   display: flex;
@@ -56,10 +57,12 @@ export default function MainItem({ day, id }: { day: DateTime; id: string }) {
     cartCtx.totalDuration
   );
   const crenels = availabilities.map((availability) => (
-    <CrenelButton key={Math.random()}>
-      {availability.start?.hour}h
-      {availability.start?.minute === 0 ? "00" : "30"}
-    </CrenelButton>
+    <Link to="/shop/summary" style={{ textDecoration: "none" }}>
+      <CrenelButton key={Math.random()}>
+        {availability.start?.hour}h
+        {availability.start?.minute === 0 ? "00" : "30"}
+      </CrenelButton>
+    </Link>
   ));
 
   return (

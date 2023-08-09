@@ -12,6 +12,7 @@ import { WarningBox } from "../../Validation";
 import CartItemList from "./CartItemList";
 import * as Dialog from "@radix-ui/react-dialog";
 import { Cross2Icon } from "@radix-ui/react-icons";
+import { BREAKPOINTS } from "../../../theme/utils";
 
 const StyledDialogOverlay = styled(Dialog.Overlay)`
   position: fixed;
@@ -32,14 +33,19 @@ const StyledDialogContent = styled(Dialog.Content)`
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 90vw;
-  max-width: 450px;
+  /* min-width: 350px; */
   max-height: 85vh;
   padding: 25px;
   animation: contentShow 150ms cubic-bezier(0.16, 1, 0.3, 1);
   z-index: 30;
   &:focus {
     outline: none;
+  }
+  @media (max-width: ${BREAKPOINTS.mobileL}px) {
+    max-width: 320px;
+  }
+  @media (min-width: ${BREAKPOINTS.mobileL}px) {
+    max-width: 500px;
   }
 `;
 

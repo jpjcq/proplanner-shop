@@ -5,6 +5,14 @@ import {
   useEffect,
   useState,
 } from "react";
+import { auth, db } from "../../firebase";
+import {
+  PhoneAuthProvider,
+  RecaptchaVerifier,
+  User,
+  onAuthStateChanged,
+  updateEmail,
+} from "firebase/auth";
 import {
   StyledFormButton,
   StyledFormField,
@@ -15,17 +23,18 @@ import {
 import { FormInput, PhoneInput } from "../Input";
 import { MediumHeader } from "../../theme/text";
 import * as Form from "@radix-ui/react-form";
-import {
-  PhoneAuthProvider,
-  RecaptchaVerifier,
-  User,
-  onAuthStateChanged,
-  updateEmail,
-} from "firebase/auth";
-import { auth, db } from "../../firebase";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import SmsCode from "../Auth/SmsCode";
-import { ErrorBox, ValidBox } from "../Validation";
+import { ValidBox } from "../Validation";
+import isEmail from "validator/es/lib/isEmail";
+import { styled } from "styled-components";
+
+const UserDetailsContentWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+`;
 
 interface ProfileContentProps {
   userState: User;
@@ -67,7 +76,7 @@ export default function UserDetailsContent({
   const [showModifOk, setShowModifOk] = useState(false);
   const [showWait, setShowWait] = useState(false);
   const [showCodeResent, setShowCodeResent] = useState(false);
-  const [showInvalidEmail, setShowInvalidEmail] = useState(false);
+  const [isInvalidEmail, setIsInvalidEmail] = useState(false);
 
   function handleFormSubmit(e?: FormEvent) {
     e?.preventDefault();
@@ -184,7 +193,7 @@ export default function UserDetailsContent({
   return (
     <>
       {!showCodeInput && (
-        <>
+        <UserDetailsContentWrapper>
           <MediumHeader fontWeight={700} style={{ margin: "70px 0 40px 0" }}>
             Mes coordonnées
           </MediumHeader>
@@ -194,19 +203,7 @@ export default function UserDetailsContent({
               <PhoneInput value={phone} setPhone={setPhone} />
             </StyledFormField>
             <StyledFormField name="email">
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "baseline",
-                  justifyContent: "space-between",
-                  width: "100%",
-                }}
-              >
-                <StyledFormLabel>Email</StyledFormLabel>
-                <StyledFormMessage match="typeMismatch">
-                  Veuillez entrer un email valide
-                </StyledFormMessage>
-              </div>
+              <StyledFormLabel>Email</StyledFormLabel>
               <Form.Control asChild>
                 <FormInput
                   type="email"
@@ -214,9 +211,18 @@ export default function UserDetailsContent({
                   value={email}
                   onChange={(e) => {
                     setEmail(e.target.value);
+                    isEmail(e.target.value)
+                      ? setIsInvalidEmail(false)
+                      : setIsInvalidEmail(true);
                   }}
+                  autoComplete="email"
                 />
               </Form.Control>
+              {isInvalidEmail && (
+                <StyledFormMessage>
+                  Veuillez entrer un email valide
+                </StyledFormMessage>
+              )}
             </StyledFormField>
             <StyledFormField name="last">
               <StyledFormLabel>Nom</StyledFormLabel>
@@ -229,6 +235,7 @@ export default function UserDetailsContent({
                   type="text"
                   required
                   onChange={(e) => setLast(e.target.value)}
+                  autoComplete="family-name"
                 />
               </Form.Control>
             </StyledFormField>
@@ -243,11 +250,11 @@ export default function UserDetailsContent({
                   type="text"
                   required
                   onChange={(e) => setFirst(e.target.value)}
+                  autoComplete="given-name"
                 />
               </Form.Control>
             </StyledFormField>
             {showModifOk && <ValidBox>Informations mises à jour</ValidBox>}
-            {showInvalidEmail && <ErrorBox>Email invalide</ErrorBox>}
             <StyledFormButton
               style={{ padding: "13px 40px", marginTop: "40px" }}
               buttonId="profile-update-button"
@@ -255,8 +262,9 @@ export default function UserDetailsContent({
               Modifier
             </StyledFormButton>
           </StyledFormRoot>
-        </>
+        </UserDetailsContentWrapper>
       )}
+
       {showCodeInput && (
         <SmsCode
           origin="update"
@@ -272,7 +280,7 @@ export default function UserDetailsContent({
           showWait={showWait}
           showCodeResent={showCodeResent}
           setShowCodeResent={setShowCodeResent}
-          setShowInvalidEmail={setShowInvalidEmail}
+          setShowInvalidEmail={setIsInvalidEmail}
         />
       )}
     </>

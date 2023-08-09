@@ -30,6 +30,7 @@ export default function ProfileModule() {
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     setActiveTab(params.get("tab") as "rendez-vous" | "profile");
+    // ADD VERIFICATION IF TAB ISNT RDV OR PROFILE
   }, [setActiveTab, location.search]);
 
   // Get user doc from firestore
@@ -71,7 +72,7 @@ export default function ProfileModule() {
       <StyledTabContent asChild value="rendez-vous">
         <RendezVousContent />
       </StyledTabContent>
-      <StyledTabContent value="profile">
+      <StyledTabContent asChild value="profile">
         <UserDetailsContent
           userState={userState!}
           docPhone={docPhone}

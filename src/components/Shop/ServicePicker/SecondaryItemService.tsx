@@ -1,15 +1,12 @@
 import { useContext } from "react";
 import styled from "styled-components";
 import CartContext from "../../../contexts/cart/cart-context";
-import {
-  BodySmall,
-  Caption,
-  SmallSubHeader,
-} from "../../../theme/text";
+import { BodySmall, Caption, SmallSubHeader } from "../../../theme/text";
 import { SecondaryServices } from "../../../types/services";
 import toHours from "../../../utils/toHours";
 import Box from "../../utils/Box";
 import { AnimatedShopButtonPrimary } from "../../Button";
+import ToastContext from "../../../contexts/toast/toast-context";
 
 const Item = styled.div`
   display: flex;
@@ -56,13 +53,15 @@ export default function SecondaryItem({
   service,
   isLastItem,
 }: SercondaryItemProps) {
-  const cartContext = useContext(CartContext);
+  const cartCtx = useContext(CartContext);
+  const toastCtx = useContext(ToastContext);
   function handleShopButtonClick(item: SecondaryServices) {
     const itemInCart = {
       ...item,
       quantity: 1,
     };
-    cartContext.addItemToCart(itemInCart);
+    cartCtx.addItemToCart(itemInCart);
+    toastCtx.showToast({ title: "Ajouté", text: `1 ${item.title}` });
   }
 
   return (
@@ -70,7 +69,7 @@ export default function SecondaryItem({
       <Item>
         <Title>{service.title}</Title>
         <Description>{service.description}</Description>
-        <Box style={{width: "100%", justifyContent: "space-between"}}>
+        <Box style={{ width: "100%", justifyContent: "space-between" }}>
           <PriceTime>
             <Price>{service.price}€</Price> &nbsp;-&nbsp;
             <Time>{toHours(service.duration)}</Time>

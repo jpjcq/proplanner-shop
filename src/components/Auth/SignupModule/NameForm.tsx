@@ -106,6 +106,7 @@ export default function NameForm({
               type="text"
               required
               onChange={(e) => setLast(e.target.value)}
+              autoComplete="family-name"
             />
           </Form.Control>
         </StyledFormField>
@@ -119,6 +120,7 @@ export default function NameForm({
               type="text"
               required
               onChange={(e) => setFirst(e.target.value)}
+              autoComplete="given-name"
             />
           </Form.Control>
         </StyledFormField>

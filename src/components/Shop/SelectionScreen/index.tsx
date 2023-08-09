@@ -33,6 +33,16 @@ export default function SelectionScreen({ activePicker }: { activePicker: string
           </div>
         </>
       )}
+      {activePicker === "summary" && (
+        <>
+          <span style={{fontSize: "20px"}}>3.&nbsp;</span>
+          <div style={{fontSize: "20px"}}>
+            Résumé et
+            <br />
+            paiement:
+          </div>
+        </>
+      )}
     </SelectionTitle>
   );
 }
