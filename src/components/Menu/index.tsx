@@ -7,7 +7,6 @@ import { signOut } from "firebase/auth";
 import { auth } from "../../firebase";
 import { ShopButtonPrimary } from "../Button";
 import { MediumHeader, SmallSubHeader } from "../../theme/text";
-// import UserContext from "../../contexts/user/user-context";
 import ToastContext from "../../contexts/toast/toast-context";
 import useSetIsConnected from "../../hooks/useSetIsConnected";
 
