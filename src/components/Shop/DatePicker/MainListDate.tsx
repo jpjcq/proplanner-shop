@@ -5,9 +5,7 @@ import getSevenDaysFromNow from "../../../utils/dates/getSevenDaysFromNow";
 import MainItem from "./MainItemDate";
 import { DateTime } from "luxon";
 
-export const ListWrapper = styled.div`
-  margin-top: 8rem;
-`;
+export const ListWrapper = styled.div``;
 
 export default function MainList() {
   const weekendDays: ["dimanche", "lundi"] = ["dimanche", "lundi"];

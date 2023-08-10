@@ -1,5 +1,7 @@
 import { useContext, useState } from "react";
 import { Variants } from "framer-motion";
+import { useNavigate } from "react-router-dom";
+import styled from "styled-components";
 import {
   StyledAccordionItem,
   StyledAccordionHeader,
@@ -13,10 +15,8 @@ import { DateTime } from "luxon";
 import getAvailabilities from "../../../utils/dates/getAvailabilities";
 import dummyBookings from "../../../data/dummyBookings";
 import { ShopButtonPrimary } from "../../Button";
-import styled from "styled-components";
 import CartContext from "../../../contexts/cart/cart-context";
 import { Text } from "rebass";
-import { Link } from "react-router-dom";
 
 const Availabilities = styled(ItemDescription)`
   display: flex;
@@ -46,6 +46,8 @@ const variants: Variants = {
 export default function MainItem({ day, id }: { day: DateTime; id: string }) {
   const [isOpen, setIsOpen] = useState(false); // Only for +/- symbol, modify with chevron ?
   const cartCtx = useContext(CartContext);
+  const navigate = useNavigate();
+
   const completeDayTitle = day.toLocaleString({
     weekday: "long",
     month: "long",
@@ -57,12 +59,16 @@ export default function MainItem({ day, id }: { day: DateTime; id: string }) {
     cartCtx.totalDuration
   );
   const crenels = availabilities.map((availability) => (
-    <Link to="/shop/summary" style={{ textDecoration: "none" }}>
-      <CrenelButton key={Math.random()}>
-        {availability.start?.hour}h
-        {availability.start?.minute === 0 ? "00" : "30"}
-      </CrenelButton>
-    </Link>
+    <CrenelButton
+      key={Math.random()}
+      onClick={() => {
+        cartCtx.addDateToCart(availability);
+        navigate("/shop/summary");
+      }}
+    >
+      {availability.start?.hour}h
+      {availability.start?.minute === 0 ? "00" : "30"}
+    </CrenelButton>
   ));
 
   return (

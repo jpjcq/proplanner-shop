@@ -3,9 +3,7 @@ import MainItem from "./MainItemService";
 import services from "../../../data/services";
 import * as Accordion from "@radix-ui/react-accordion";
 
-export const ListWrapper = styled.div`
-  margin-top: 8rem;
-`;
+export const ListWrapper = styled.div``;
 
 export default function MainList() {
   // const services = (useRouteLoaderData("shop") as Services).services;

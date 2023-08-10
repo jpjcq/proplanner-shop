@@ -7,6 +7,8 @@ const Wrapper = styled.div`
   flex-direction: column;
   justify-content: center;
   align-items: flex-start;
+
+  margin-bottom: 40px;
 `;
 
 const Item = styled.div`
@@ -28,7 +30,7 @@ interface DetailProps {
 
 export default function Detail({ title, children }: DetailProps) {
   return (
-    <Wrapper style={{ marginTop: "130px" }}>
+    <Wrapper>
       <SubHeader
         fontWeight={700}
         style={{ marginLeft: "30px", marginBottom: "20px" }}

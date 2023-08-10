@@ -1,31 +1,34 @@
 import { ReactNode, useReducer } from "react";
 import { SecondaryServices } from "../../types/services";
 import CartContext from "./cart-context";
+import { Interval } from "luxon";
 
 export interface ItemInCart extends SecondaryServices {
   quantity: number;
 }
-
-const initialCartState = {
-  cartItems: [],
-  cartAmount: 0,
-  totalDuration: 0,
-  isEmpty: true,
-};
 
 interface StateType {
   cartItems: ItemInCart[];
   cartAmount: number;
   totalDuration: number;
   isEmpty: boolean;
+  chosenDate: Interval | null;
 }
+
+const initialCartState: StateType = {
+  cartItems: [],
+  cartAmount: 0,
+  totalDuration: 0,
+  isEmpty: true,
+  chosenDate: null,
+};
 
 interface ActionType {
   type: string;
-  payload: ItemInCart | ItemInCart["_id"] | ItemInCart[];
+  payload?: ItemInCart | ItemInCart["_id"] | ItemInCart[] | Interval;
 }
 
-function cartReducer(state: StateType, action: ActionType) {
+function cartReducer(state: StateType, action: ActionType): StateType {
   function getTotalDuration(cartItems: ItemInCart[]): number {
     let totalDuration = 0;
     cartItems.forEach((item) => {
@@ -35,7 +38,7 @@ function cartReducer(state: StateType, action: ActionType) {
     return totalDuration;
   }
   switch (action.type) {
-    case "ADD":
+    case "ADD_ITEM":
       // eslint-disable-next-line no-case-declarations
       const existingCartItem = state.cartItems.find(
         (item) => item.short === (action.payload as ItemInCart).short
@@ -54,17 +57,18 @@ function cartReducer(state: StateType, action: ActionType) {
         updatedCartItems = [...state.cartItems];
         updatedCartItems[existingCartItemIndex] = updatedItem;
       } else {
-        updatedCartItems = state.cartItems.concat(action.payload as never[]);
+        updatedCartItems = state.cartItems.concat(action.payload as ItemInCart);
       }
       return {
+        ...state,
         isEmpty: false,
         cartItems: updatedCartItems,
         cartAmount: state.cartAmount + (action.payload as ItemInCart)?.price,
         totalDuration: getTotalDuration(updatedCartItems),
       };
-    case "REMOVE":
+    case "REMOVE_ITEM":
       // eslint-disable-next-line no-case-declarations
-      const idToRemove = action.payload;
+      const idToRemove = action.payload as ItemInCart["_id"];
       // eslint-disable-next-line no-case-declarations
       const itemToDecrement = state.cartItems.find(
         (item) => item._id === idToRemove
@@ -85,6 +89,7 @@ function cartReducer(state: StateType, action: ActionType) {
           })
           .filter((item) => item.quantity > 0);
         return {
+          ...state,
           isEmpty: newCartItems.length === 0 ? true : false,
           cartItems: newCartItems,
           cartAmount: state.cartAmount - itemToDecrement.price,
@@ -93,6 +98,16 @@ function cartReducer(state: StateType, action: ActionType) {
       } else {
         return state;
       }
+    case "ADD_DATE":
+      return {
+        ...state,
+        chosenDate: action.payload! as Interval,
+      };
+    case "REMOVE_DATE":
+      return {
+        ...state,
+        chosenDate: null,
+      };
     default:
       return state;
   }
@@ -113,11 +128,16 @@ export default function CartProvider({ children }: CartProviderProps) {
     cartAmount: cartState.cartAmount,
     totalDuration: cartState.totalDuration,
     isEmpty: cartState.isEmpty,
+    chosenDate: cartState.chosenDate,
     addItemToCart: (item: ItemInCart) =>
-      dispatchCartState({ type: "ADD", payload: item }),
+      dispatchCartState({ type: "ADD_ITEM", payload: item }),
     removeItemFromCart: (id: ItemInCart["_id"]) =>
-      dispatchCartState({ type: "REMOVE", payload: id }),
+      dispatchCartState({ type: "REMOVE_ITEM", payload: id }),
+    addDateToCart: (crenel: Interval) =>
+      dispatchCartState({ type: "ADD_DATE", payload: crenel }),
+    removeDateFromCart: () => dispatchCartState({ type: "REMOVE_DATE" }),
   };
+
   return (
     <CartContext.Provider value={cartContext}>{children}</CartContext.Provider>
   );

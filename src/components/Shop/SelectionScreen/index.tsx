@@ -8,6 +8,8 @@ const SelectionTitle = styled(LargeHeader)`
   display: flex;
   justify-content: center;
   padding-top: 170px;
+
+  margin-bottom: 130px !important;
 `;
 
 export default function SelectionScreen({ activePicker }: { activePicker: string }) {
