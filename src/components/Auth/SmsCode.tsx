@@ -123,7 +123,7 @@ export default function SmsCode({
           if ((origin === "login" || "signup") && confirmationResultState) {
             const userCredential = await confirmationResultState.confirm(code);
             setUserState?.(userCredential.user);
-            const userDocRef = doc(db, "users", userCredential.user.uid);
+            const userDocRef = doc(db, "customers", userCredential.user.uid);
             const docSnap = await getDoc(userDocRef);
             if (origin === "login") {
               if (docSnap.exists()) {
@@ -174,7 +174,7 @@ export default function SmsCode({
                     console.log(userDetails);
                     await updatePhoneNumber(user, phoneCredential);
                     await updateEmail(user, userDetails?.email as string);
-                    const userDocRef = doc(db, "users", user.uid);
+                    const userDocRef = doc(db, "customers", user.uid);
                     await setDoc(userDocRef, {
                       phone: userDetails?.phone,
                       email: userDetails?.email,

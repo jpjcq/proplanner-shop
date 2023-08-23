@@ -38,7 +38,7 @@ export default function ProfileModule() {
     onAuthStateChanged(auth, (user) => {
       if (user) {
         void (async function () {
-          const docRef = doc(db, "users", user.uid);
+          const docRef = doc(db, "customers", user.uid);
           const docSnap = await getDoc(docRef);
           if (docSnap.exists()) {
             setUserState(user);

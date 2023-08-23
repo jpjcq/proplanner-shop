@@ -19,7 +19,7 @@ export default function useSetIsConnected(): boolean {
       if (user && !isConnected) {
         void (async function () {
           try {
-            const userRef = doc(db, "users", user.uid);
+            const userRef = doc(db, "customers", user.uid);
             const docSnap = await getDoc(userRef);
             if (docSnap.exists()) {
               sessionStorage.setItem("isConnected", "true");

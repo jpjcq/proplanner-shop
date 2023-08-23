@@ -1,4 +1,4 @@
-import React, { FormEvent, useState } from "react";
+import { Dispatch, FormEvent, SetStateAction, useState } from "react";
 import styled from "styled-components";
 import { doc, setDoc } from "firebase/firestore";
 import {
@@ -35,12 +35,12 @@ interface NameFormProps {
   email: string;
   password: string;
   last: string;
-  setLast: React.Dispatch<React.SetStateAction<string>>;
+  setLast: Dispatch<SetStateAction<string>>;
   first: string;
-  setFirst: React.Dispatch<React.SetStateAction<string>>;
-  setShowNameForm: React.Dispatch<React.SetStateAction<boolean>>;
-  setShowWelcomeUser: React.Dispatch<React.SetStateAction<boolean>>;
-  setShowFatalError: React.Dispatch<React.SetStateAction<boolean>>;
+  setFirst: Dispatch<SetStateAction<string>>;
+  setShowNameForm: Dispatch<SetStateAction<boolean>>;
+  setShowWelcomeUser: Dispatch<SetStateAction<boolean>>;
+  setShowFatalError: Dispatch<SetStateAction<boolean>>;
 }
 
 export default function NameForm({
@@ -62,7 +62,7 @@ export default function NameForm({
     void (async function () {
       try {
         setShowWait(true);
-        const userRef = doc(db, "users", user?.uid as string);
+        const userRef = doc(db, "customers", user?.uid as string);
         await setDoc(userRef, {
           phone: user?.phoneNumber as string,
           email: email,

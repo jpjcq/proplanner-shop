@@ -3,15 +3,23 @@ import { Link, Navigate, useNavigate } from "react-router-dom";
 import CartContext from "../../../contexts/cart/cart-context";
 import SelectionScreen from "../SelectionScreen";
 import Detail from "./Detail";
-import ServiceChosen from "./ServiceChosen";
+import { ServiceChosen, ServiceToPay } from "./ServiceChosen";
 import { styled } from "styled-components";
-import { BodySmall, SmallSubHeader } from "../../../theme/text";
+import { BodySmall, SmallSubHeader, SubHeader } from "../../../theme/text";
 import { AnimatedShopButtonPrimary } from "../../Button";
 import { onAuthStateChanged } from "firebase/auth";
-import { auth, db } from "../../../firebase";
+import { auth, db, payments } from "../../../firebase";
 import { doc, getDoc } from "firebase/firestore";
 import { UserDoc } from "../../../types/userDoc";
 import { formatPhoneNumber } from "react-phone-number-input";
+import CheckIcon from "../../Checkbox/CheckIcon";
+import {
+  StyledCheckboxIndicator,
+  StyledCheckboxLabel,
+  StyledCheckboxRoot,
+} from "../../Checkbox";
+import { CheckedState } from "@radix-ui/react-checkbox";
+import { getProducts } from "@stripe/firestore-stripe-payments";
 
 const Separator = styled.div`
   height: 2px;
@@ -72,18 +80,31 @@ const ButtonsWrapper = styled.div`
   justify-content: center;
 `;
 
+const CheckboxWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  width: 100%;
+
+  &:first-child {
+    margin-bottom: 20px;
+  }
+`;
+
 export default function SummaryAndPayment() {
   const cartCtx = useContext(CartContext);
   const navigate = useNavigate();
 
   const [userState, setUserState] = useState<UserDoc | null>(null);
 
+  const [isPartialPayment, setIsPartialpayment] = useState<CheckedState>(true);
+  const [isFullPayment, setIsFullpayment] = useState<CheckedState>(false);
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
         void (async function () {
           try {
-            const userRef = doc(db, "users", user.uid);
+            const userRef = doc(db, "customers", user.uid);
             const docSnap = await getDoc(userRef);
             if (docSnap.exists()) {
               sessionStorage.setItem("isConnected", "true");
@@ -114,6 +135,28 @@ export default function SummaryAndPayment() {
                   title={itemInCart.title}
                   price={itemInCart.price}
                   duration={itemInCart.duration}
+                />
+                {index < array.length - 1 ? <Separator /> : null}
+              </>
+            )
+          )}
+          {index < array.length - 1 ? <Separator /> : null}
+        </>
+      );
+    }
+  );
+
+  const ServiceToPayList = cartCtx.cartItems.flatMap(
+    (itemInCart, index, array) => {
+      return (
+        <>
+          {Array.from({ length: itemInCart.quantity }).map(
+            (_, index, array) => (
+              <>
+                <ServiceToPay
+                  key={index}
+                  title={itemInCart.title}
+                  price={itemInCart.price}
                 />
                 {index < array.length - 1 ? <Separator /> : null}
               </>
@@ -192,6 +235,99 @@ export default function SummaryAndPayment() {
               </Row>
             </>
           )}
+        </Detail>
+        <Detail title="Paiement">
+          <CheckboxWrapper>
+            <StyledCheckboxRoot
+              className="CheckboxRoot"
+              id="c1"
+              checked={isPartialPayment}
+              onCheckedChange={(checked) => {
+                if (checked) {
+                  setIsFullpayment(false);
+                  setIsPartialpayment(true);
+                } else {
+                  setIsPartialpayment(true);
+                }
+              }}
+            >
+              <StyledCheckboxIndicator className="CheckboxIndicator">
+                <CheckIcon />
+              </StyledCheckboxIndicator>
+            </StyledCheckboxRoot>
+            <StyledCheckboxLabel className="Label" htmlFor="c1">
+              <BodySmall>
+                Payer{" "}
+                <span style={{ fontWeight: 600 }}>
+                  une partie {cartCtx.cartAmount / 4}€ maintenant
+                </span>
+                , puis le reste {(cartCtx.cartAmount / 4) * 3}€ sur place.
+              </BodySmall>
+            </StyledCheckboxLabel>
+          </CheckboxWrapper>
+          <CheckboxWrapper>
+            <StyledCheckboxRoot
+              className="CheckboxRoot"
+              id="c2"
+              checked={isFullPayment}
+              onCheckedChange={(checked) => {
+                if (checked) {
+                  setIsPartialpayment(false);
+                  setIsFullpayment(true);
+                } else {
+                  setIsFullpayment(true);
+                }
+              }}
+            >
+              <StyledCheckboxIndicator className="CheckboxIndicator">
+                <CheckIcon />
+              </StyledCheckboxIndicator>
+            </StyledCheckboxRoot>
+            <StyledCheckboxLabel className="Label" htmlFor="c2">
+              <BodySmall>
+                Payer{" "}
+                <span style={{ fontWeight: 600 }}>
+                  la totalité {cartCtx.cartAmount}€ maintenant
+                </span>
+                .
+              </BodySmall>
+            </StyledCheckboxLabel>
+          </CheckboxWrapper>
+          <Separator style={{ width: "80%", margin: "30px 0" }} />
+          <Row style={{ marginBottom: "10px" }}>{ServiceToPayList}</Row>
+          <Row>
+            <SmallSubHeader>Total</SmallSubHeader>
+            <SmallSubHeader>{cartCtx.cartAmount}€</SmallSubHeader>
+          </Row>
+          <Separator style={{ width: "80%", margin: "30px 0" }} />
+          <Row style={{ marginBottom: "10px" }}>
+            <SmallSubHeader>A régler maintenant</SmallSubHeader>
+            <SmallSubHeader>
+              {isPartialPayment ? cartCtx.cartAmount / 4 : cartCtx.cartAmount}€
+            </SmallSubHeader>
+          </Row>
+          <Row>
+            <BodySmall>A régler sur place</BodySmall>
+            <BodySmall>
+              {isPartialPayment ? (cartCtx.cartAmount / 4) * 3 : 0}€
+            </BodySmall>
+          </Row>
+          <Separator style={{ width: "80%", margin: "30px 0" }} />
+          <SubHeader fontWeight={700}>Annulation</SubHeader>
+          <br />
+          <BodySmall>
+            Vous pouvez annuler gratuitement votre réservation jusqu'au 07
+            septembre à 09:00, et être remboursé de la totalité du montant.
+            Passé cette date, l'acompte ne sera plus remboursable.
+            <br />
+            <br /> En cas de non présentation au rendez-vous, l'acompte ne sera
+            pas remboursé.
+          </BodySmall>
+          <Separator style={{ width: "80%", margin: "30px 0" }} />
+          <SmallSubHeader>Numéro de carte</SmallSubHeader>
+
+          {/* <PaymentElement /> */}
+         
         </Detail>
       </>
     );

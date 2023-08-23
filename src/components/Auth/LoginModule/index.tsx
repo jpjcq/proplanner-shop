@@ -66,7 +66,7 @@ export default function LoginModule() {
               email,
               password
             );
-            const userDocRef = doc(db, "users", credentials.user.uid);
+            const userDocRef = doc(db, "customers", credentials.user.uid);
             const docSnap = await getDoc(userDocRef);
             if (docSnap.exists()) {
               sessionStorage.setItem("isConnected", "true");

@@ -32,7 +32,7 @@ interface ServiceChosenProps {
   duration: number;
 }
 
-export default function ServiceChosen({
+export function ServiceChosen({
   id,
   title,
   price,
@@ -56,6 +56,26 @@ export default function ServiceChosen({
           >
             supprimer
           </AnimatedShopButtonPrimary>
+        </Column>
+      </Row>
+    </Wrapper>
+  );
+}
+
+interface ServiceToPayProps {
+  title: string;
+  price: number;
+}
+
+export function ServiceToPay({ title, price }: ServiceToPayProps) {
+  return (
+    <Wrapper>
+      <Row style={{ justifyContent: "space-between" }}>
+        <Column>
+          <BodySmall>{title}</BodySmall>
+        </Column>
+        <Column>
+          <BodySmall>{price}€</BodySmall>
         </Column>
       </Row>
     </Wrapper>

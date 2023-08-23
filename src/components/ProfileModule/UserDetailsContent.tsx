@@ -84,7 +84,7 @@ export default function UserDetailsContent({
       if (userState) {
         void (async function () {
           await updateEmail(userState, email);
-          const docRef = doc(db, "users", userState.uid);
+          const docRef = doc(db, "customers", userState.uid);
           await setDoc(docRef, {
             phone,
             email,
@@ -130,7 +130,7 @@ export default function UserDetailsContent({
         localUser = user;
       }
       void (async function () {
-        const docRef = doc(db, "users", localUser.uid);
+        const docRef = doc(db, "customers", localUser.uid);
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
           setDocPhone(docSnap.data().phone as string);
