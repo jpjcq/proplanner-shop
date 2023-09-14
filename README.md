@@ -1,6 +1,6 @@
 # Proplanner Suite - Admin Panel
 
-https://github.com/jpjcq/proplanner-shop/assets/75884465/592dee4b-5068-4f87-8dfd-9c7a8e7ecfd2
+https://github.com/jpjcq/proplanner-shop/assets/75884465/13f3b8e9-e0cf-4fd0-8e9a-dd62d9503317
 
 ## Overview
 
