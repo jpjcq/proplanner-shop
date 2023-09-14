@@ -25,7 +25,7 @@ export default function TextLogo() {
   return (
     <LogoWrapper >
       <LogoTop>L'ONGLERIE</LogoTop>
-      <LogoBottom>DE CHARLOTTE</LogoBottom>
+      <LogoBottom>DE JULIE</LogoBottom>
     </LogoWrapper>
   );
 }

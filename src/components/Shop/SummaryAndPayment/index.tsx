@@ -6,9 +6,9 @@ import Detail from "./Detail";
 import { ServiceChosen, ServiceToPay } from "./ServiceChosen";
 import { styled } from "styled-components";
 import { BodySmall, SmallSubHeader, SubHeader } from "../../../theme/text";
-import { AnimatedShopButtonPrimary } from "../../Button";
+import { AnimatedShopButtonPrimary, ShopButtonPrimary } from "../../Button";
 import { onAuthStateChanged } from "firebase/auth";
-import { auth, db, payments } from "../../../firebase";
+import { auth, db } from "../../../firebase";
 import { doc, getDoc } from "firebase/firestore";
 import { UserDoc } from "../../../types/userDoc";
 import { formatPhoneNumber } from "react-phone-number-input";
@@ -19,7 +19,6 @@ import {
   StyledCheckboxRoot,
 } from "../../Checkbox";
 import { CheckedState } from "@radix-ui/react-checkbox";
-import { getProducts } from "@stripe/firestore-stripe-payments";
 
 const Separator = styled.div`
   height: 2px;
@@ -324,10 +323,10 @@ export default function SummaryAndPayment() {
             pas remboursé.
           </BodySmall>
           <Separator style={{ width: "80%", margin: "30px 0" }} />
-          <SmallSubHeader>Numéro de carte</SmallSubHeader>
 
-          {/* <PaymentElement /> */}
-         
+          {/* Waiting for @inverstase/firestore-stripe-payments to be maintained. getProducts() not working */}
+          <SubHeader fontWeight={700}>Paiement</SubHeader>
+          <ShopButtonPrimary style={{marginTop: "20px"}}>Payer</ShopButtonPrimary>
         </Detail>
       </>
     );

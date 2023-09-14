@@ -2,6 +2,8 @@ import { ReactNode, useContext } from "react";
 import { useLocation } from "react-router-dom";
 import styled from "styled-components";
 import { Text } from "rebass";
+import * as Dialog from "@radix-ui/react-dialog";
+import { Cross2Icon } from "@radix-ui/react-icons";
 import CartContext from "../../../contexts/cart/cart-context";
 import { MediumHeader, SmallHeadline } from "../../../theme/text";
 import {
@@ -10,8 +12,6 @@ import {
 } from "../../Button";
 import { WarningBox } from "../../Validation";
 import CartItemList from "./CartItemList";
-import * as Dialog from "@radix-ui/react-dialog";
-import { Cross2Icon } from "@radix-ui/react-icons";
 import { BREAKPOINTS } from "../../../theme/utils";
 
 const StyledDialogOverlay = styled(Dialog.Overlay)`
@@ -38,12 +38,15 @@ const StyledDialogContent = styled(Dialog.Content)`
   padding: 25px;
   animation: contentShow 150ms cubic-bezier(0.16, 1, 0.3, 1);
   z-index: 30;
+
   &:focus {
     outline: none;
   }
+
   @media (max-width: ${BREAKPOINTS.mobileL}px) {
     max-width: 320px;
   }
+
   @media (min-width: ${BREAKPOINTS.mobileL}px) {
     max-width: 500px;
   }
